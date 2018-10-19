@@ -2,23 +2,14 @@
 
 """Module for reading Apple's .webarchive files.
 
-pywebarchive is a Python module for reading Apple's .webarchive files.
-It consists of two main classes:
-
-  * WebArchive, to read .webarchive files
-  * Extractor, to extract a WebArchive to a standard HTML document
-
-Individual resources (i.e., files) in a WebArchive are represented by
-WebResource objects.
+pywebarchive is a Python module for reading Apple's .webarchive files
+and extracting their contents to standard HTML documents.
 
 Example usage:
 
-    from webarchive import WebArchive, Extractor
-
+    from webarchive import WebArchive
     archive = WebArchive("example.webarchive")
-
-    extractor = Extractor(archive)
-    extractor.extract("example.html")
+    archive.extract("example.html")
 """
 
 import os
