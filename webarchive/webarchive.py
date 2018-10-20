@@ -187,12 +187,6 @@ class WebArchive(object):
                     # Data URLs are anonymous, so assign a default basename
                     base = "data_url"
 
-                    # Attempt to automatically determine an appropriate
-                    # extension based on the MIME type
-                    ext = mimetypes.guess_extension(res.mime_type)
-                    if not ext:
-                        ext = ""
-
                 else:
                     # Get the basename of the URL path
                     url_path_basename = os.path.basename(parsed_url.path)
@@ -201,6 +195,18 @@ class WebArchive(object):
             else:
                 # FIXME: Why would this occur?
                 base = "blank_url"
+
+            # Attempt to automatically determine an appropriate extension
+            # based on the MIME type
+            #
+            # Files served over HTTP(S) can have any extension, or none at
+            # all, because the Content-type header indicates what type of
+            # data they contain. However, because local files don't come with
+            # HTTP headers, most browsers rely on the extension to determine
+            # their file types, so we'll have to choose extensions they're
+            # likely to recognize.
+            ext = mimetypes.guess_extension(res.mime_type)
+            if not ext:
                 ext = ""
 
             # Safe substitution for "%", which is used as an escape character
