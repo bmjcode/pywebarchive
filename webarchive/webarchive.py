@@ -47,10 +47,10 @@ class WebArchive(object):
             with io.open(path, "rb") as fp:
                 archive = plistlib.load(fp)
 
-                # Extract the main resource
+                # Process the main resource
                 self._main_resource = WebResource(archive["WebMainResource"])
 
-                # Extract subresources
+                # Process subresources
                 for res in archive["WebSubresources"]:
                     self._subresources.append(WebResource(res))
 
