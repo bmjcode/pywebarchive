@@ -140,7 +140,7 @@ class MainResourceProcessor(HTMLParser):
         
             value = ", ".join(srcset)
 
-        elif attr in ("href", "src"):
+        elif attr in ("action", "href", "src"):
             value = self._resource_url(value)
 
         return escape(value, True)
