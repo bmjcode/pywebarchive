@@ -39,7 +39,11 @@ class WebArchive(object):
         self._local_paths = {}
 
         # Read data from the archive
-        if isinstance(path_or_stream, io.IOBase):
+        if isinstance(path_or_stream, dict):
+            # For processing subframe archives
+            archive = path_or_stream
+
+        elif isinstance(path_or_stream, io.IOBase):
             # The constructor argument is a stream
             archive = plistlib.load(path_or_stream)
 
@@ -52,10 +56,15 @@ class WebArchive(object):
         self._main_resource = WebResource(archive["WebMainResource"])
 
         # Process subresources
-        for res in archive["WebSubresources"]:
-            self._subresources.append(WebResource(res))
+        if "WebSubresources" in archive:
+            for res in archive["WebSubresources"]:
+                self._subresources.append(WebResource(res))
 
-        # TODO: Process WebSubframeArchives
+        # Process WebSubframeArchives
+        if "WebSubframeArchives" in archive:
+            for plist_data in archive["WebSubframeArchives"]:
+                subframe_archive = WebArchive(plist_data)
+                self._subframe_archives.append(subframe_archive)
 
         # Generate local paths for each subresource in the archive
         self._make_local_paths()
@@ -75,10 +84,23 @@ class WebArchive(object):
         os.makedirs(subresource_dir, exist_ok=True)
 
         # Extract the main resource
-        self._extract_main_resource(output_path, subresource_dir_base)
+        self._extract_main_resource(self._main_resource,
+                                    output_path,
+                                    subresource_dir_base)
+
+        # Identify subresources of this archive and any subframe archives
+        subresources = self._subresources[:]
+        for subframe_archive in self._subframe_archives:
+            subresources += subframe_archive._subresources
+
+            # Extract this subframe's main resource to our subresources folder
+            sf_main_res = subframe_archive._main_resource
+            sf_local_path = os.path.join(subresource_dir,
+                                         self._local_paths[sf_main_res.url])
+            self._extract_main_resource(sf_main_res, sf_local_path, "")
 
         # Extract subresources
-        for res in self._subresources:
+        for res in subresources:
             # Full path to the extracted subresource
             subresource_path = os.path.join(subresource_dir,
                                             self._local_paths[res.url])
@@ -86,10 +108,8 @@ class WebArchive(object):
             # Extract this subresource
             self._extract_subresource(res, subresource_path)
 
-    def _extract_main_resource(self, output_path, subresource_dir):
+    def _extract_main_resource(self, res, output_path, subresource_dir):
         """Extract the main resource of the webarchive."""
-
-        res = self._main_resource
 
         with io.open(output_path, "w",
                      encoding=res.text_encoding) as output:
@@ -151,25 +171,40 @@ class WebArchive(object):
     def _make_local_paths(self):
         """Generate local paths for each subresource in the archive."""
 
-        for res in self._subresources:
-            # Parse the resource's URL
-            parsed_url = urlparse(res.url)
+        # Process this archive's own subresources, and both main resources
+        # and subresources in any subframe archives
+        resources = self._subresources[:]
+        for subframe_archive in self._subframe_archives:
+            resources.append(subframe_archive._main_resource)
+            resources += subframe_archive._subresources
 
-            if parsed_url.scheme == "data":
-                # Process the components of the data URL
-                data_url = DataURL(parsed_url.path)
+        for res in resources:
+            if res.url:
+                # Parse the resource's URL
+                parsed_url = urlparse(res.url)
 
-                # Data URLs are anonymous, so assign a default basename
-                base = "data_url"
+                if parsed_url.scheme == "data":
+                    # Process the components of the data URL
+                    data_url = DataURL(parsed_url.path)
 
-                # Attempt to automatically determine an appropriate extension
-                ext = mimetypes.guess_extension(data_url.mime_type)
-                if not ext:
-                    ext = ""
+                    # Data URLs are anonymous, so assign a default basename
+                    base = "data_url"
+
+                    # Attempt to automatically determine an appropriate
+                    # extension based on the MIME type
+                    ext = mimetypes.guess_extension(data_url.mime_type)
+                    if not ext:
+                        ext = ""
+
+                else:
+                    # Get the basename of the URL path
+                    url_path_basename = os.path.basename(parsed_url.path)
+                    base, ext = os.path.splitext(url_path_basename)
 
             else:
-                # Get the basename of the URL path
-                base, ext = os.path.splitext(os.path.basename(parsed_url.path))
+                # FIXME: Why would this occur?
+                base = "blank_url"
+                ext = ""
 
             # Safe substitution for "%", which is used as an escape character
             # in URLs and can cause problems when used in local paths
@@ -201,7 +236,7 @@ class WebArchive(object):
 
     @property
     def subframe_archives(self):
-        """This webarchive's subframe archives (currently not implemented)."""
+        """This webarchive's subframes (a list of WebArchive objects)."""
 
         return self._subframe_archives
 
