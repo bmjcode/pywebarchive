@@ -23,7 +23,7 @@ CLASSIFIERS = [
 
 ENTRY_POINTS = {
     "console_scripts": [
-        "webarchive-extractor = webarchive.extractor:main",
+        "webarchive-extractor = extractor:main",
     ],
 }
 
