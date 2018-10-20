@@ -109,7 +109,11 @@ class MainResourceProcessor(HTMLParser):
 
         if abs_url in self._local_paths:
             # Return the local path to this resource
-            return "{0}/{1}".format(self._root, self._local_paths[abs_url])
+            if self._root:
+                return "{0}/{1}".format(self._root,
+                                        self._local_paths[abs_url])
+            else:
+                return self._local_paths[abs_url]
 
         else:
             # Return the original value unmodified
