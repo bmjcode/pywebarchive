@@ -3,7 +3,7 @@
 from setuptools import setup, find_packages
 
 NAME = "pywebarchive"
-VERSION = "0.1.2"
+VERSION = "0.2.0"
 AUTHOR = "Benjamin Johnson"
 AUTHOR_EMAIL = "bmjcode@gmail.com"
 DESCRIPTION = "Module for reading Apple's .webarchive files"
