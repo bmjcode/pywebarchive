@@ -65,21 +65,23 @@ class WebArchive(object):
     def extract(self, output_path):
         """Extract the webarchive's contents as a standard HTML document."""
 
-        # Basename of the directory containing extracted subresources
+        # Strip the extension from the output path
         base, ext = os.path.splitext(os.path.basename(output_path))
-        subresource_dir = "{0}_files".format(base)
+
+        # Basename of the directory containing extracted subresources
+        subresource_dir_base = "{0}_files".format(base)
 
         # Full path to the directory containing extracted subresources
-        output_dir = os.path.join(os.path.dirname(output_path),
-                                  subresource_dir)
-        os.makedirs(output_dir, exist_ok=True)
+        subresource_dir = os.path.join(os.path.dirname(output_path),
+                                       subresource_dir_base)
+        os.makedirs(subresource_dir, exist_ok=True)
 
         # Extract the main resource
-        self._extract_main_resource(output_path, subresource_dir)
+        self._extract_main_resource(output_path, subresource_dir_base)
 
         # Extract subresources
         for res in self._subresources:
-            self._extract_subresource(res, output_dir)
+            self._extract_subresource(res, subresource_dir)
 
     def _extract_main_resource(self, output_path, subresource_dir):
         """Extract the main resource of the webarchive."""
