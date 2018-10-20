@@ -7,11 +7,12 @@ import sys
 import io
 import plistlib
 import re
+import mimetypes
 
 from urllib.parse import urlparse, urljoin
 
 from .webresource import WebResource
-from .util import MainResourceProcessor
+from .util import DataURL, MainResourceProcessor
 
 
 __all__ = ["WebArchive"]
@@ -78,14 +79,12 @@ class WebArchive(object):
 
         # Extract subresources
         for res in self._subresources:
-            # Don't extract data URLs
-            if not res.url.startswith("data:"):
-                # Full path to the extracted subresource
-                subresource_path = os.path.join(subresource_dir,
-                                                self._local_paths[res.url])
+            # Full path to the extracted subresource
+            subresource_path = os.path.join(subresource_dir,
+                                            self._local_paths[res.url])
 
-                # Extract this subresource
-                self._extract_subresource(res, subresource_path)
+            # Extract this subresource
+            self._extract_subresource(res, subresource_path)
 
     def _extract_main_resource(self, output_path, subresource_dir):
         """Extract the main resource of the webarchive."""
@@ -153,15 +152,24 @@ class WebArchive(object):
         """Generate local paths for each subresource in the archive."""
 
         for res in self._subresources:
-            # Don't make local paths for data URLs
-            if res.url.startswith("data:"):
-                continue
-
             # Parse the resource's URL
             parsed_url = urlparse(res.url)
 
-            # Get the basename of the URL path
-            base, ext = os.path.splitext(os.path.basename(parsed_url.path))
+            if parsed_url.scheme == "data":
+                # Process the components of the data URL
+                data_url = DataURL(parsed_url.path)
+
+                # Data URLs are anonymous, so assign a default basename
+                base = "data_url"
+
+                # Attempt to automatically determine an appropriate extension
+                ext = mimetypes.guess_extension(data_url.mime_type)
+                if not ext:
+                    ext = ""
+
+            else:
+                # Get the basename of the URL path
+                base, ext = os.path.splitext(os.path.basename(parsed_url.path))
 
             # Safe substitution for "%", which is used as an escape character
             # in URLs and can cause problems when used in local paths
@@ -199,3 +207,11 @@ class WebArchive(object):
 
     # Regular expression matching a URL in a style sheet
     _rx_style_sheet_url = re.compile(r"url\(([^\)]+)\)")
+
+
+# Record extensions for MIME types sometimes encountered in data URLs
+# that the mimetypes module may not already recognize
+mimetypes.add_type("application/font-woff", ".woff")
+mimetypes.add_type("application/x-font-woff", ".woff")
+mimetypes.add_type("font/woff", ".woff")
+mimetypes.add_type("font/woff2", ".woff2")

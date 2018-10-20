@@ -5,12 +5,61 @@
 import os
 import sys
 
+from base64 import b64decode
 from html import escape
 from html.parser import HTMLParser
-from urllib.parse import urlparse, urljoin
+from urllib.parse import unquote, urlparse, urljoin
 
 
 __all__ = ["MainResourceProcessor"]
+
+
+class DataURL(object):
+    """Class to process the components of a data URL.
+
+    Usage: data_url = DataURL(urlparse("data:,").path)
+    """
+
+    __slots__ = ["mime_type", "charset", "data"]
+
+    def __init__(self, url_path):
+        """Return a new DataURL object."""
+
+        # Default values per RFC 2397
+        self.mime_type = "text/plain"
+        self.charset = "US-ASCII"
+        # This is an implementation detail and doesn't need to be exported
+        use_base64 = False
+
+        self.data = None
+
+        # Separate the media type and the data
+        media_type, raw_data = url_path.split(",", 1)
+
+        # Separate media type fields
+        media_type_fields = media_type.split(";")
+
+        # The first field is the MIME type
+        self.mime_type = media_type_fields[0]
+
+        # Process remaining fields
+        for field in media_type_fields[1:]:
+            if "=" in field:
+                attr, value = field.split("=", 1)
+                if attr == "charset":
+                    # Record the character set
+                    self.charset = value
+
+        # The base64 extension must come last
+        if media_type_fields[-1] == "base64":
+            use_base64 = True
+
+        # Decode the raw data
+        if use_base64:
+            self.data = b64decode(raw_data)
+
+        else:
+            self.data = bytes(unquote(raw_data), encoding=self.charset)
 
 
 class MainResourceProcessor(HTMLParser):
