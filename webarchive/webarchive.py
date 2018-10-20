@@ -42,7 +42,7 @@ class WebArchive(object):
         # Basenames for extracted subresources, indexed by URL
         self._local_paths = {}
 
-        # Read data from the specified webarchive file
+        # Read data from the archive
         if isinstance(path_or_stream, io.IOBase):
             # The constructor argument is a stream
             archive = plistlib.load(path_or_stream)
