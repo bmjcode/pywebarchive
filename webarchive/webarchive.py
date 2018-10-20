@@ -163,12 +163,6 @@ class WebArchive(object):
             # in URLs and can cause problems when used in local paths
             base = base.replace("%", "_")
 
-            if parsed_url.query:
-                # Append a hash of the query string before the extension
-                # to ensure a unique filename is generated for each distinct
-                # query string associated with a given url.path
-                base = "{0}.{1}".format(base, hash(parsed_url.query))
-
             # Re-join the base and extension
             local_path = "{0}{1}".format(base, ext)
 
