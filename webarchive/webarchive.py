@@ -32,7 +32,7 @@ class WebArchive(object):
     __slots__ = ["_main_resource", "_subresources", "_subframe_archives",
                  "_local_paths"]
 
-    def __init__(self, path):
+    def __init__(self, path_or_stream):
         """Return a new WebArchive."""
 
         self._main_resource = None
@@ -42,22 +42,27 @@ class WebArchive(object):
         # Basenames for extracted subresources, indexed by URL
         self._local_paths = {}
 
-        if path:
-            # Read data from the specified webarchive file
-            with io.open(path, "rb") as fp:
+        # Read data from the specified webarchive file
+        if isinstance(path_or_stream, io.IOBase):
+            # The constructor argument is a stream
+            archive = plistlib.load(path_or_stream)
+
+        else:
+            # Assume the constructor argument is a file path
+            with io.open(path_or_stream, "rb") as fp:
                 archive = plistlib.load(fp)
 
-                # Process the main resource
-                self._main_resource = WebResource(archive["WebMainResource"])
+        # Process the main resource
+        self._main_resource = WebResource(archive["WebMainResource"])
 
-                # Process subresources
-                for res in archive["WebSubresources"]:
-                    self._subresources.append(WebResource(res))
+        # Process subresources
+        for res in archive["WebSubresources"]:
+            self._subresources.append(WebResource(res))
 
-                # TODO: Process WebSubframeArchives
+        # TODO: Process WebSubframeArchives
 
-            # Generate local paths for each subresource in the archive
-            self._make_local_paths()
+        # Generate local paths for each subresource in the archive
+        self._make_local_paths()
 
     def extract(self, output_path):
         """Extract the webarchive's contents as a standard HTML document."""
