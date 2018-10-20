@@ -9,7 +9,6 @@ import plistlib
 import re
 
 from urllib.parse import urlparse, urljoin
-from pprint import pprint
 
 from .webresource import WebResource
 from .util import MainResourceProcessor
