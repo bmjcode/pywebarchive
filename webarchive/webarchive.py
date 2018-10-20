@@ -157,7 +157,7 @@ class WebArchive(object):
 
         for res in self._subresources:
             # Don't make local paths for data URLs
-            if res.url.startswith("data"):
+            if res.url.startswith("data:"):
                 continue
 
             # Parse the resource's URL
