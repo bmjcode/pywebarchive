@@ -81,16 +81,7 @@ class WebArchive(object):
 
         # Extract subresources
         for res in self._subresources:
-            # Full path to the extracted subresource
-            res_path = os.path.join(output_dir, self._local_paths[res.url])
-
-            if res.mime_type == "text/css":
-                # Process style sheets to rewrite subresource URLs
-                self._extract_style_sheet(res, res_path)
-
-            else:
-                # Extract other subresources as-is
-                self._extract_subresource(res, res_path)
+            self._extract_subresource(res, output_dir)
 
     def _extract_main_resource(self, output_path, subresource_dir):
         """Extract the main resource of the webarchive."""
@@ -142,11 +133,21 @@ class WebArchive(object):
 
             output.write(content)
 
-    def _extract_subresource(self, res, output_path):
-        """Extract an arbitrary subresource from the archive."""
+    def _extract_subresource(self, res, subresource_dir):
+        """Extract the specified subresource from the archive."""
 
-        with io.open(output_path, "wb") as output:
-            output.write(bytes(res))
+        # Full path to the extracted subresource
+        output_path = os.path.join(subresource_dir,
+                                   self._local_paths[res.url])
+
+        if res.mime_type == "text/css":
+            # Process style sheets to rewrite subresource URLs
+            self._extract_style_sheet(res, output_path)
+
+        else:
+            # Extract other subresources as-is
+            with io.open(output_path, "wb") as output:
+                output.write(bytes(res))
 
     def _make_local_paths(self):
         """Generate local paths for each subresource in the archive."""
