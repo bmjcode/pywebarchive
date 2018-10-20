@@ -12,7 +12,7 @@ import mimetypes
 from urllib.parse import urlparse, urljoin
 
 from .webresource import WebResource
-from .util import DataURL, MainResourceProcessor
+from .util import MainResourceProcessor
 
 
 __all__ = ["WebArchive"]
@@ -184,15 +184,12 @@ class WebArchive(object):
                 parsed_url = urlparse(res.url)
 
                 if parsed_url.scheme == "data":
-                    # Process the components of the data URL
-                    data_url = DataURL(parsed_url.path)
-
                     # Data URLs are anonymous, so assign a default basename
                     base = "data_url"
 
                     # Attempt to automatically determine an appropriate
                     # extension based on the MIME type
-                    ext = mimetypes.guess_extension(data_url.mime_type)
+                    ext = mimetypes.guess_extension(res.mime_type)
                     if not ext:
                         ext = ""
 
