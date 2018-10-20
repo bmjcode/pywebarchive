@@ -251,5 +251,7 @@ class WebArchive(object):
 # that the mimetypes module may not already recognize
 mimetypes.add_type("application/font-woff", ".woff")
 mimetypes.add_type("application/x-font-woff", ".woff")
+mimetypes.add_type("application/x-javascript", ".js")
 mimetypes.add_type("font/woff", ".woff")
 mimetypes.add_type("font/woff2", ".woff2")
+mimetypes.add_type("text/javascript", ".js")
