@@ -21,12 +21,6 @@ CLASSIFIERS = [
     "Operating System :: OS Independent",
 ]
 
-ENTRY_POINTS = {
-    "console_scripts": [
-        "webarchive-extractor = extractor:main",
-    ],
-}
-
 setup(name=NAME,
       version=VERSION,
       author=AUTHOR,
@@ -36,5 +30,4 @@ setup(name=NAME,
       long_description_content_type=LONG_DESCRIPTION_CONTENT_TYPE,
       url=URL,
       packages=PACKAGES,
-      classifiers=CLASSIFIERS,
-      entry_points=ENTRY_POINTS)
+      classifiers=CLASSIFIERS)
