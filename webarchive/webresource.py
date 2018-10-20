@@ -27,7 +27,7 @@ class WebResource(object):
                  "_text_encoding", "_frame_name"]
 
     def __init__(self, plist_data):
-        """Return a new WebResource."""
+        """Return a new WebResource object."""
 
         # Required attributes
         self._data = plist_data["WebResourceData"]

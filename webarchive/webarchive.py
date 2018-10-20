@@ -18,10 +18,7 @@ __all__ = ["WebArchive"]
 
 
 class WebArchive(object):
-    """Webarchive file reader.
-
-    Pass the name of a .webarchive file as the constructor's path argument.
-    """
+    """Class for reading a .webarchive file."""
 
     # WebMainResource
     # WebSubresources
@@ -31,7 +28,7 @@ class WebArchive(object):
                  "_local_paths"]
 
     def __init__(self, path_or_stream):
-        """Return a new WebArchive."""
+        """Return a new WebArchive object."""
 
         self._main_resource = None
         self._subresources = []
