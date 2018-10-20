@@ -3,8 +3,8 @@
 Example usage:
 
 ```python
-from webarchive import WebArchive
-archive = WebArchive("example.webarchive")
+import webarchive
+archive = webarchive.open("example.webarchive")
 archive.extract("example.html")
 ```
 

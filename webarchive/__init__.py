@@ -7,8 +7,8 @@ and extracting their contents to standard HTML documents.
 
 Example usage:
 
-    from webarchive import WebArchive
-    archive = WebArchive("example.webarchive")
+    import webarchive
+    archive = webarchive.open("example.webarchive")
     archive.extract("example.html")
 """
 
@@ -20,3 +20,17 @@ from .webarchive import WebArchive
 from .webresource import WebResource
 
 __all__ = ["Extractor", "WebArchive", "WebResource"]
+
+
+# This provides a somewhat more pythonic API than creating a WebArchive
+# object directly.
+#
+# N.B. Do not export this in __all__, since we don't want to clobber
+# the builtin of the same name.
+def open(path):
+    """Open the specified .webarchive file for reading.
+
+    Returns a WebArchive object.
+    """
+
+    return WebArchive(path)
