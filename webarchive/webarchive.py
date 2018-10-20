@@ -9,7 +9,6 @@ import plistlib
 import re
 
 from urllib.parse import urlparse, urljoin
-from urllib.request import pathname2url
 from pprint import pprint
 
 from .webresource import WebResource
