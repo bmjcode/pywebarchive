@@ -163,6 +163,10 @@ class WebArchive(object):
                     local_url = self._local_paths[abs_url]
                     content = content.replace(match, local_url)
 
+                else:
+                    # Substitute the absolute URL of this resource.
+                    content = content.replace(match, abs_url)
+
             output.write(content)
 
     def _extract_subresource(self, res, output_path):

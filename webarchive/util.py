@@ -101,11 +101,15 @@ class MainResourceProcessor(HTMLParser):
         # This should probably be on its own line
         self._output.write("<!{0}>\n".format(decl))
 
-    def _local_path(self, value):
-        """Return the local path for resources inside the archive."""
+    def _resource_url(self, orig_url):
+        """Return an appropriate URL for the specified resource.
+
+        If the resource exists in this archive, this will be its local path.
+        Otherwise, it will be the absolute URL to the original resource.
+        """
 
         # Get the absolute URL of the original resource
-        abs_url = urljoin(self._url, value)
+        abs_url = urljoin(self._url, orig_url)
 
         if abs_url in self._local_paths:
             # Return the local path to this resource
@@ -116,14 +120,14 @@ class MainResourceProcessor(HTMLParser):
                 return self._local_paths[abs_url]
 
         else:
-            # Return the original value unmodified
-            return value
+            # Return the absolute URL to this resource
+            return abs_url
 
     def _process_attr_value(self, tag, attr, value):
         """Process the value of a tag's attribute."""
 
         if tag == "a" and attr == "href":
-            # Rewrite href's for <a> tags relative to the original URL
+            # Always rewrite href's for <a> tags relative to the original URL
             value = urljoin(self._url, value)
 
         elif tag == "img" and attr == "srcset":
@@ -131,13 +135,12 @@ class MainResourceProcessor(HTMLParser):
             srcset = []
             for item in map(str.strip, value.split(",")):
                 src, res = item.split(" ", 1)
-                src = self._local_path(src)
+                src = self._resource_url(src)
                 srcset.append("{0} {1}".format(src, res))
         
             value = ", ".join(srcset)
 
         elif attr in ("href", "src"):
-            # Substitute the local path for resources inside the archive
-            value = self._local_path(value)
+            value = self._resource_url(value)
 
         return escape(value, True)
