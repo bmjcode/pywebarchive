@@ -214,9 +214,19 @@ class WebArchive(object):
         if not ext:
             ext = ""
 
-        # Safe substitution for "%", which is used as an escape character
-        # in URLs and can cause problems when used in local paths
-        base = base.replace("%", "_")
+        # Replace characters that could cause problems in local paths
+        #
+        # "%" is used as an escape character in URLs, and the others are
+        # invalid characters in Windows and some Unix paths.
+        for c in "%", "<", ">", ":", '"', "/", "\\", "|", "?", "*":
+            base = base.replace(c, "_")
+
+        # Replace reserved names on Windows
+        if (base.lower() in ("con", "prn", "aux", "nul")
+            or (len(base) == 4
+                and base[:3].lower() in ("com", "lpt")
+                and base[3].isdigit())):
+            base = "{0}_".format(base)
 
         # Re-join the base and extension
         local_path = "{0}{1}".format(base, ext)
