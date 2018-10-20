@@ -37,6 +37,7 @@ def main():
     if len(sys.argv) >= 3:
         # Get the output path from the command line
         output_path = sys.argv[2]
+
     else:
         # Derive the output path from the archive path
         base, ext = os.path.splitext(archive_path)
@@ -45,11 +46,3 @@ def main():
     # Extract the archive
     archive = WebArchive(archive_path)
     archive.extract(output_path)
-
-    try:
-        # Open the output file
-        os.startfile(output_path)
-
-    except (Exception):
-        # This isn't available on all platforms
-        pass
