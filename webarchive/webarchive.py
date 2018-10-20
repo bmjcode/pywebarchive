@@ -28,8 +28,11 @@ class WebArchive(object):
     __slots__ = ["_main_resource", "_subresources", "_subframe_archives",
                  "_local_paths"]
 
-    def __init__(self, path_or_stream):
-        """Return a new WebArchive object."""
+    def __init__(self, path_or_stream, *, subframe=False):
+        """Return a new WebArchive object.
+
+        The subframe argument is reserved for internal use.
+        """
 
         self._main_resource = None
         self._subresources = []
@@ -57,17 +60,23 @@ class WebArchive(object):
 
         # Process subresources
         if "WebSubresources" in archive:
-            for res in archive["WebSubresources"]:
-                self._subresources.append(WebResource(res))
+            for plist_data in archive["WebSubresources"]:
+                res = WebResource(plist_data)
+                self._subresources.append(res)
+
+                if not subframe:
+                    self._make_local_path(res)
 
         # Process WebSubframeArchives
         if "WebSubframeArchives" in archive:
             for plist_data in archive["WebSubframeArchives"]:
-                subframe_archive = WebArchive(plist_data)
+                subframe_archive = WebArchive(plist_data, subframe=True)
                 self._subframe_archives.append(subframe_archive)
 
-        # Generate local paths for each subresource in the archive
-        self._make_local_paths()
+                if not subframe:
+                    self._make_local_path(subframe_archive.main_resource)
+                    for res in subframe_archive._subresources:
+                        self._make_local_path(res)
 
     def extract(self, output_path):
         """Extract the webarchive's contents as a standard HTML document."""
@@ -168,62 +177,54 @@ class WebArchive(object):
             with io.open(output_path, "wb") as output:
                 output.write(bytes(res))
 
-    def _make_local_paths(self):
-        """Generate local paths for each subresource in the archive."""
+    def _make_local_path(self, res):
+        """Generate a local path for the specified WebResource."""
 
-        # Process this archive's own subresources, and both main resources
-        # and subresources in any subframe archives
-        resources = self._subresources[:]
-        for subframe_archive in self._subframe_archives:
-            resources.append(subframe_archive._main_resource)
-            resources += subframe_archive._subresources
+        if res.url:
+            # Parse the resource's URL
+            parsed_url = urlparse(res.url)
 
-        for res in resources:
-            if res.url:
-                # Parse the resource's URL
-                parsed_url = urlparse(res.url)
-
-                if parsed_url.scheme == "data":
-                    # Data URLs are anonymous, so assign a default basename
-                    base = "data_url"
-
-                else:
-                    # Get the basename of the URL path
-                    url_path_basename = os.path.basename(parsed_url.path)
-                    base, ext = os.path.splitext(url_path_basename)
+            if parsed_url.scheme == "data":
+                # Data URLs are anonymous, so assign a default basename
+                base = "data_url"
 
             else:
-                # FIXME: Why would this occur?
-                base = "blank_url"
+                # Get the basename of the URL path
+                url_path_basename = os.path.basename(parsed_url.path)
+                base, ext = os.path.splitext(url_path_basename)
 
-            # Attempt to automatically determine an appropriate extension
-            # based on the MIME type
-            #
-            # Files served over HTTP(S) can have any extension, or none at
-            # all, because the Content-type header indicates what type of
-            # data they contain. However, because local files don't come with
-            # HTTP headers, most browsers rely on the extension to determine
-            # their file types, so we'll have to choose extensions they're
-            # likely to recognize.
-            ext = mimetypes.guess_extension(res.mime_type)
-            if not ext:
-                ext = ""
+        else:
+            # FIXME: Why would this occur?
+            base = "blank_url"
 
-            # Safe substitution for "%", which is used as an escape character
-            # in URLs and can cause problems when used in local paths
-            base = base.replace("%", "_")
+        # Attempt to automatically determine an appropriate extension
+        # based on the MIME type
+        #
+        # Files served over HTTP(S) can have any extension, or none at
+        # all, because the Content-type header indicates what type of
+        # data they contain. However, because local files don't come with
+        # HTTP headers, most browsers rely on the extension to determine
+        # their file types, so we'll have to choose extensions they're
+        # likely to recognize.
+        ext = mimetypes.guess_extension(res.mime_type)
+        if not ext:
+            ext = ""
 
-            # Re-join the base and extension
-            local_path = "{0}{1}".format(base, ext)
+        # Safe substitution for "%", which is used as an escape character
+        # in URLs and can cause problems when used in local paths
+        base = base.replace("%", "_")
 
-            # Append a copy number if needed to ensure a unique basename
-            copy_num = 1
-            while local_path in self._local_paths.values():
-                copy_num += 1
-                local_path = "{0}.{1}{2}".format(base, copy_num, ext)
+        # Re-join the base and extension
+        local_path = "{0}{1}".format(base, ext)
 
-            # Save this resource's local path
-            self._local_paths[res.url] = local_path
+        # Append a copy number if needed to ensure a unique basename
+        copy_num = 1
+        while local_path in self._local_paths.values():
+            copy_num += 1
+            local_path = "{0}.{1}{2}".format(base, copy_num, ext)
+
+        # Save this resource's local path
+        self._local_paths[res.url] = local_path
 
     @property
     def main_resource(self):
