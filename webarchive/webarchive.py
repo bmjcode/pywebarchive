@@ -96,7 +96,7 @@ class WebArchive(object):
 
     def extract(self, output_path,
                 *, before_cb=None, after_cb=None, canceled_cb=None):
-        """Extract the webarchive's contents as a standard HTML document.
+        """Extract the archive's contents as a standard HTML document.
 
         You can specify these callback functions as keyword arguments to
         monitor or cancel the extraction process:
@@ -193,7 +193,7 @@ class WebArchive(object):
         return res_count
 
     def _extract_main_resource(self, res, output_path, subresource_dir):
-        """Extract the main resource of the webarchive."""
+        """Extract the archive's main resource."""
 
         with io.open(output_path, "w",
                      encoding=res.text_encoding) as output:
@@ -206,7 +206,7 @@ class WebArchive(object):
             mrp.feed(str(res))
 
     def _extract_style_sheet(self, res, output_path):
-        """Extract a style sheet subresource from the webarchive."""
+        """Extract a style sheet subresource from the archive."""
 
         content = str(res)
 
@@ -320,19 +320,19 @@ class WebArchive(object):
 
     @property
     def main_resource(self):
-        """This webarchive's main resource (a WebResource object)."""
+        """This archive's main resource (a WebResource object)."""
 
         return self._main_resource
 
     @property
     def subresources(self):
-        """This webarchive's subresources (a list of WebResource objects)."""
+        """This archive's subresources (a list of WebResource objects)."""
 
         return self._subresources
 
     @property
     def subframe_archives(self):
-        """This webarchive's subframes (a list of WebArchive objects)."""
+        """This archive's subframes (a list of WebArchive objects)."""
 
         return self._subframe_archives
 
