@@ -42,8 +42,9 @@ class WebArchive(object):
         self._local_paths = {}
 
         # Read data from the archive
-        if isinstance(path_or_stream, dict):
-            # For processing subframe archives
+        if subframe and isinstance(path_or_stream, dict):
+            # This is a subframe, and the constructor argument is the
+            # processed plist data from the parent archive
             archive = path_or_stream
 
         elif isinstance(path_or_stream, io.IOBase):
