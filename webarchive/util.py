@@ -7,7 +7,7 @@ import sys
 
 from html import escape
 from html.parser import HTMLParser
-from urllib.parse import urlparse, urljoin
+from urllib.parse import urljoin
 
 
 __all__ = ["MainResourceProcessor"]
