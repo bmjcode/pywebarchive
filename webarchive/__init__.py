@@ -3,7 +3,7 @@
 """Module for reading Apple's .webarchive files.
 
 pywebarchive is a Python module for reading Apple's .webarchive files
-and extracting their contents to standard HTML documents.
+and extracting them to standard HTML documents.
 
 Example usage:
 
