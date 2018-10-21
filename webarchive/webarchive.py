@@ -259,6 +259,9 @@ class WebArchive(object):
     def _make_local_path(self, res):
         """Generate a local path for the specified WebResource."""
 
+        # Basename for the extracted resource
+        base = ""
+
         if res.url:
             # Parse the resource's URL
             parsed_url = urlparse(res.url)
@@ -272,8 +275,8 @@ class WebArchive(object):
                 url_path_basename = os.path.basename(parsed_url.path)
                 base, ext = os.path.splitext(url_path_basename)
 
-        else:
-            # FIXME: Why would this occur?
+        if not base:
+            # No URL, or blank URL path (why would this occur?)
             base = "blank_url"
 
         # Attempt to automatically determine an appropriate extension
