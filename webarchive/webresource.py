@@ -98,4 +98,4 @@ class WebResource(object):
     def frame_name(self):
         """This resource's frame name."""
 
-        return self._url
+        return self._frame_name
