@@ -132,7 +132,6 @@ class WebArchive(object):
         # Full path to the directory containing extracted subresources
         subresource_dir = os.path.join(os.path.dirname(output_path),
                                        subresource_dir_base)
-        os.makedirs(subresource_dir, exist_ok=True)
 
         if canceled_cb and canceled_cb():
             return
@@ -143,6 +142,10 @@ class WebArchive(object):
                                     output_path,
                                     subresource_dir_base)
         AFTER(self._main_resource, output_path)
+
+        # Make a directory for subresources
+        if self._subresources or self._subframe_archives:
+            os.makedirs(subresource_dir, exist_ok=True)
 
         # Identify subresources of this archive and any subframe archives
         subresources = self._subresources[:]
