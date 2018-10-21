@@ -13,7 +13,7 @@ with open("README.md", "r") as readme:
 
 LONG_DESCRIPTION_CONTENT_TYPE = "text/markdown"
 URL = "https://github.com/bmjcode/pywebarchive"
-PACKAGES = find_packages()
+PACKAGES = find_packages(exclude="test")
 CLASSIFIERS = [
     "Development Status :: 3 - Alpha",
     "Programming Language :: Python :: 3",
