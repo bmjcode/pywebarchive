@@ -38,11 +38,9 @@ class WebResource(object):
         if "WebResourceTextEncodingName" in plist_data:
             self._text_encoding = plist_data["WebResourceTextEncodingName"]
             self._text_encoding = self._text_encoding.lower()
-
         elif self._mime_type.startswith("text/"):
             # Fall back on UTF-8 for text resources
             self._text_encoding = "utf-8"
-
         else:
             # No encoding specified or needed
             self._text_encoding = None
