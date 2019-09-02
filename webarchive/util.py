@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 """Utility classes and functions for internal use."""
 
 import os

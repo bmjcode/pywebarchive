@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 """Module for reading Apple's .webarchive files.
 
 pywebarchive is a Python module for reading Apple's .webarchive files

@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 """WebResource class implementation."""
 
 import os

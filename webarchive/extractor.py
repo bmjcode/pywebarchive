@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 """The deprecated Extractor class."""
 
 import os
