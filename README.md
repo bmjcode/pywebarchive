@@ -8,7 +8,7 @@ archive = webarchive.open("example.webarchive")
 archive.extract("example.html")
 ```
 
-For detailed documentation, try `python -m pydoc webarchive`.
+For detailed documentation, try `python3 -m pydoc webarchive`.
 
 The source distribution also includes two webarchive extraction tools:
 * `extractor.py` is a command-line version.
