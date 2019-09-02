@@ -11,7 +11,6 @@ DESCRIPTION = "Module for reading Apple's .webarchive files"
 with open("README.md", "r") as readme:
     LONG_DESCRIPTION = readme.read()
 
-LONG_DESCRIPTION_CONTENT_TYPE = "text/markdown"
 URL = "https://github.com/bmjcode/pywebarchive"
 PACKAGES = find_packages(exclude="test")
 CLASSIFIERS = [
@@ -27,7 +26,7 @@ setup(name=NAME,
       author_email=AUTHOR_EMAIL,
       description=DESCRIPTION,
       long_description=LONG_DESCRIPTION,
-      long_description_content_type=LONG_DESCRIPTION_CONTENT_TYPE,
+      long_description_content_type="text/markdown",
       url=URL,
       packages=PACKAGES,
       classifiers=CLASSIFIERS)
