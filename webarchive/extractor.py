@@ -1,8 +1,5 @@
 """The deprecated Extractor class."""
 
-import os
-import sys
-
 
 __all__ = ["Extractor"]
 

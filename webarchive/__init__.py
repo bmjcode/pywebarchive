@@ -10,9 +10,6 @@ Example usage:
     archive.extract("example.html")
 """
 
-import os
-import sys
-
 from .extractor import Extractor
 from .webarchive import WebArchive
 from .webresource import WebResource

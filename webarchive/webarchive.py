@@ -1,7 +1,6 @@
 """WebArchive class implementation."""
 
 import os
-import sys
 import io
 import plistlib
 import re

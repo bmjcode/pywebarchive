@@ -1,8 +1,5 @@
 """Utility classes and functions for internal use."""
 
-import os
-import sys
-
 from html import escape
 from html.parser import HTMLParser
 from urllib.parse import urljoin

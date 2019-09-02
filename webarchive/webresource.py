@@ -1,8 +1,5 @@
 """WebResource class implementation."""
 
-import os
-import sys
-
 
 __all__ = ["WebResource"]
 
