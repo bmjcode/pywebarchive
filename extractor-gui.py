@@ -18,6 +18,10 @@ from tkinter.messagebox import showerror
 try: import userpaths
 except (ImportError): userpaths = None
 
+# Ditto for webbrowser
+try: import webbrowser
+except (ImportError): webbrowser = None
+
 import webarchive
 
 
@@ -43,13 +47,6 @@ class ExtractorUI(Tk):
         # Whether to open the extracted file after processing
         # (only applicable if we are extracting a single archive)
         oa_var = self._open_after_processing = BooleanVar()
-
-        # Function to open the file after processing
-        try:
-            self._startfile = os.startfile
-        except (AttributeError):
-            # Not available on all systems
-            self._startfile = None
 
         if not archives:
             # Hide the window until we begin extraction
@@ -119,7 +116,7 @@ class ExtractorUI(Tk):
 
         if self._archives:
             # Determine whether we can open the page after processing
-            if self._startfile and len(self._archives) == 1:
+            if webbrowser and len(self._archives) == 1:
                 self._open_after_processing.set(1)
             else:
                 self._open_after_checkbox.configure(state="disabled")
@@ -253,7 +250,7 @@ class ExtractorUI(Tk):
             self._canceler = None
 
             if (not error_occurred
-                and self._startfile
+                and webbrowser
                 and self._open_after_processing.get()):
                 # Figure out where we extracted this archive
                 # FIXME: Duplicated from ExtractorThread.run()
@@ -261,7 +258,7 @@ class ExtractorUI(Tk):
                 output_path = "{0}.html".format(base)
 
                 # Open the extracted page
-                self._startfile(output_path)
+                webbrowser.open(output_path)
 
             # Close the window
             self.after(20, self.close_window)
