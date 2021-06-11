@@ -12,21 +12,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 * Made single-file extraction mode the default.
 
-# [0.2.4] - 2020-02-22
+## [0.2.4] - 2020-02-22
 ### Added
 * Unit tests.
 ### Changed
 * `extractor-gui.py` can now open converted files on non-Windows platforms.
 
-# [0.2.3] - 2019-09-02
+## [0.2.3] - 2019-09-02
 ### Changed
 * Code cleanup release; no user-visible changes.
 
-# [0.2.2] - 2018-10-21
+## [0.2.2] - 2018-10-21
 ### Fixed
 * Various bugfixes, mainly involving subframe archives.
 
-# [0.2.1] - 2018-10-20
+## [0.2.1] - 2018-10-20
 ### Added
 * Graphical extraction tool.
 * Support for subframe archives.
@@ -35,11 +35,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 **Note**: Version 0.2.0 was pulled shortly after posting due to problems with its `setup.py` script.
 
-# [0.1.1] - 2018-10-19
+## [0.1.1] - 2018-10-19
 ### Changed
 * API improvements and bugfixes; no new features added.
 
-# [0.1.0] - 2018-10-16
+## [0.1.0] - 2018-10-16
 ### Added
 * Initial public release.
 
