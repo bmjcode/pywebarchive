@@ -89,12 +89,7 @@ class MainResourceProcessor(HTMLParser):
 
         # Process attributes
         for attr, value in attrs:
-            if self._root is None:
-                # Embed external resources inline with HTML
-                if tag == "link" and attr == "href":
-                    link_href = self._absolute_url(value)
-
-            elif tag == "img" and attr == "srcset":
+            if tag == "img" and attr == "srcset":
                 # Omit the srcset attribute, which is not supported by older
                 # versions of Safari (including the obsolete 5.1.7 for Windows,
                 # which is the only version I have available to test with).
