@@ -8,8 +8,8 @@ from html.parser import HTMLParser
 from urllib.parse import urljoin
 
 
-__all__ = ["MainResourceProcessor", "base64_string", "bytes_to_str",
-           "process_style_sheet"]
+__all__ = ["base64_string", "bytes_to_str",
+           "process_main_resource", "process_style_sheet"]
 
 
 # Regular expression matching a URL in a style sheet
@@ -215,6 +215,17 @@ def base64_string(data, altchars=None):
 def bytes_to_str(data):
     """Convert bytes to str."""
     return "".join(map(chr, data))
+
+
+def process_main_resource(res,
+                          subresource_dir, subresources, local_paths, output):
+    """Process a webarchive's main WebResource."""
+
+    # Feed the content through the MainResourceProcessor to rewrite
+    # references to files inside the archive
+    mrp = MainResourceProcessor(res.url, subresource_dir,
+                                subresources, local_paths, output)
+    mrp.feed(str(res))
 
 
 def process_style_sheet(res, subresources, local_paths=None):

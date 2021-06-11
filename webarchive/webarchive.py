@@ -8,7 +8,7 @@ import mimetypes
 from urllib.parse import urlparse, urljoin
 
 from .webresource import WebResource
-from .util import MainResourceProcessor, process_style_sheet
+from .util import process_main_resource, process_style_sheet
 
 
 __all__ = ["WebArchive"]
@@ -201,14 +201,11 @@ class WebArchive(object):
 
         with io.open(output_path, "w",
                      encoding=res.text_encoding) as output:
-            # Feed the content through the MainResourceProcessor to rewrite
-            # references to files inside the archive
-            mrp = MainResourceProcessor(res.url,
-                                        subresource_dir,
-                                        self._subresources,
-                                        self._local_paths,
-                                        output)
-            mrp.feed(str(res))
+            process_main_resource(res,
+                                  subresource_dir,
+                                  self._subresources,
+                                  self._local_paths,
+                                  output)
 
     def _extract_style_sheet(self, res, output_path):
         """Extract a style sheet subresource from the archive."""
