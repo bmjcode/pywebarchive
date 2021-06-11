@@ -1,5 +1,7 @@
 """WebResource class implementation."""
 
+from .util import base64_string
+
 
 __all__ = ["WebResource"]
 
@@ -64,6 +66,12 @@ class WebResource(object):
 
         else:
             raise TypeError("cannot convert non-text resource to str")
+
+    def to_data_uri(self):
+        """Return a data URI corresponding to this subresource's content."""
+
+        return "data:{0};base64,{1}".format(self._mime_type,
+                                            base64_string(self._data))
 
     @property
     def data(self):
