@@ -176,17 +176,19 @@ class MainResourceProcessor(HTMLParser):
         """Process the value of a tag's attribute."""
 
         if tag == "a" and attr == "href":
-            # Always rewrite href's for <a> tags relative to the original URL
-            value = urljoin(self._url, value)
+            value = self._absolute_url(value)
 
         elif tag == "img":
-            if attr == "src" and self._root is None:
-                # Embed this image using a data URL
-                for subresource in self._subresources:
-                    if subresource.url == self._absolute_url(value):
-                        value = subresource.to_data_uri()
+            if attr == "src":
+                if self._root:
+                    value = self._resource_url(value)
+                else:
+                    # Inline this image using a data URI
+                    for subresource in self._subresources:
+                        if subresource.url == self._absolute_url(value):
+                            value = subresource.to_data_uri()
 
-            if attr == "srcset":
+            elif attr == "srcset":
                 # Process the HTML5 srcset attribute
                 srcset = []
                 for item in map(str.strip, value.split(",")):
