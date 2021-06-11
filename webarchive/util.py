@@ -62,9 +62,9 @@ class MainResourceProcessor(HTMLParser):
                     content = ""
                     for subresource in self._subresources:
                         if subresource.url == link_href:
-                            data = process_style_sheet(subresource,
-                                                       self._subresources)
-                            content = escape(data)
+                            # HTML entities in <style> are NOT escaped
+                            content = process_style_sheet(subresource,
+                                                          self._subresources)
                             break
                     # Bypass the standard logic since we're replacing this
                     # with an entirely different tag
@@ -218,6 +218,11 @@ def process_main_resource(res,
                           subresource_dir, subresources, local_paths, output):
     """Process a webarchive's main WebResource."""
 
+    # Make sure this resource is an appropriate content type
+    if not res.mime_type in ("text/html", "application/xhtml+xml"):
+        raise TypeError("res must have mime_type == "
+                        "'text/html' or 'application/xhtml+xml'")
+
     # Feed the content through the MainResourceProcessor to rewrite
     # references to files inside the archive
     mrp = MainResourceProcessor(res.url, subresource_dir,
@@ -234,6 +239,10 @@ def process_style_sheet(res, subresources, local_paths=None):
     to other subresources in this webarchive will be replaced with data
     URIs corresponding to their contents.
     """
+
+    # Make sure this resource is an appropriate content type
+    if res.mime_type != "text/css":
+        raise TypeError("res must have mime_type == 'text/css'")
 
     content = str(res)
 

@@ -111,6 +111,11 @@ class WebArchive(object):
             Returns True if extraction was canceled, False otherwise.
         """
 
+        # Single-file mode has not yet been tested on subframe archives.
+        # TODO: Figure out how to implement this.
+        if self._subframe_archives:
+            single_file = False
+
         def BEFORE(res, path):
             if before_cb:
                 before_cb(res, path)
