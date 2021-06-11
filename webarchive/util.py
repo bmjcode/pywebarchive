@@ -1,12 +1,19 @@
 """Utility classes and functions for internal use."""
 
+import re
+
 from base64 import b64encode
 from html import escape
 from html.parser import HTMLParser
 from urllib.parse import urljoin
 
 
-__all__ = ["MainResourceProcessor", "base64_string", "bytes_to_str"]
+__all__ = ["MainResourceProcessor", "base64_string", "bytes_to_str",
+           "process_style_sheet"]
+
+
+# Regular expression matching a URL in a style sheet
+RX_STYLE_SHEET_URL = re.compile(r"url\(([^\)]+)\)")
 
 
 class MainResourceProcessor(HTMLParser):
@@ -55,7 +62,9 @@ class MainResourceProcessor(HTMLParser):
                     content = ""
                     for subresource in self._subresources:
                         if subresource.url == link_href:
-                            content = escape(bytes_to_str(subresource.data))
+                            data = process_style_sheet(subresource,
+                                                       self._subresources)
+                            content = escape(data)
                             break
                     # Bypass the standard logic since we're replacing this
                     # with an entirely different tag
@@ -180,10 +189,7 @@ class MainResourceProcessor(HTMLParser):
                 # Embed this image using a data URL
                 for subresource in self._subresources:
                     if subresource.url == self._absolute_url(value):
-                        value = "data:{0};base64,{1}".format(
-                            subresource.mime_type,
-                            base64_string(subresource.data)
-                        )
+                        value = subresource.to_data_uri()
 
             if attr == "srcset":
                 # Process the HTML5 srcset attribute
@@ -192,7 +198,7 @@ class MainResourceProcessor(HTMLParser):
                     src, res = item.split(" ", 1)
                     src = self._resource_url(src)
                     srcset.append("{0} {1}".format(src, res))
-            
+
                 value = ", ".join(srcset)
 
         elif attr in ("action", "href", "src"):
@@ -209,3 +215,62 @@ def base64_string(data, altchars=None):
 def bytes_to_str(data):
     """Convert bytes to str."""
     return "".join(map(chr, data))
+
+
+def process_style_sheet(res, subresources, local_paths=None):
+    """Process a WebResource containing CSS data.
+
+    If local_paths is specified, any url() value referencing another
+    subresource in this webarchive will be replaced with the local path
+    of the extracted copy. If no local_paths are specified, references
+    to other subresources in this webarchive will be replaced with data
+    URIs corresponding to their contents.
+    """
+
+    content = str(res)
+
+    # Find URLs in the stylesheet
+    matches = RX_STYLE_SHEET_URL.findall(content)
+    for match in matches:
+        # Remove quote characters, if present, from the URL
+        if match.startswith('"') or match.startswith("'"):
+            match = match[1:]
+        if match.endswith('"') or match.endswith("'"):
+            match = match[:-1]
+
+        # Filter out blank URLs; we really shouldn't encounter these
+        # in the first place, but they can show up and cause problems
+        if not match:
+            continue
+
+        # Get the absolute URL of the original resource.
+        # Note paths in CSS are relative to the style sheet.
+        abs_url = urljoin(res.url, match)
+
+        if local_paths:
+            if abs_url in local_paths:
+                # Substitute the local path to this resource.
+                # Because paths in CSS are relative to the style sheet,
+                # and all subresources (like style sheets) are extracted
+                # to the same folder, the basename is all we need.
+                local_url = local_paths[abs_url]
+                content = content.replace(match, local_url)
+
+            else:
+                # Substitute the absolute URL of this resource.
+                content = content.replace(match, abs_url)
+
+        else:
+            converted_to_data_uri = False
+            for subresource in subresources:
+                if subresource.url == abs_url:
+                    content = content.replace(match,
+                                              subresource.to_data_uri())
+                    converted_to_data_uri = True
+                    break
+
+            if not converted_to_data_uri:
+                # Substitute the absolute URL of this resource.
+                content = content.replace(match, abs_url)
+
+    return content

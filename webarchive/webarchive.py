@@ -3,13 +3,12 @@
 import os
 import io
 import plistlib
-import re
 import mimetypes
 
 from urllib.parse import urlparse, urljoin
 
 from .webresource import WebResource
-from .util import MainResourceProcessor
+from .util import MainResourceProcessor, process_style_sheet
 
 
 __all__ = ["WebArchive"]
@@ -214,40 +213,11 @@ class WebArchive(object):
     def _extract_style_sheet(self, res, output_path):
         """Extract a style sheet subresource from the archive."""
 
-        content = str(res)
-
         with io.open(output_path, "w",
                      encoding=res.text_encoding) as output:
-            # Find URLs in the stylesheet
-            matches = self._rx_style_sheet_url.findall(content)
-            for match in matches:
-                # Remove quote characters, if present, from the URL
-                if match.startswith('"') or match.startswith("'"):
-                    match = match[1:]
-                if match.endswith('"') or match.endswith("'"):
-                    match = match[:-1]
-
-                # Filter out blank URLs; we really shouldn't encounter these
-                # in the first place, but they can show up and cause problems
-                if not match:
-                    continue
-
-                # Get the absolute URL of the original resource.
-                # Note paths in CSS are relative to the style sheet.
-                abs_url = urljoin(res.url, match)
-
-                if abs_url in self._local_paths:
-                    # Substitute the local path to this resource.
-                    # Because paths in CSS are relative to the style sheet,
-                    # and all subresources (like style sheets) are extracted
-                    # to the same folder, the basename is all we need.
-                    local_url = self._local_paths[abs_url]
-                    content = content.replace(match, local_url)
-
-                else:
-                    # Substitute the absolute URL of this resource.
-                    content = content.replace(match, abs_url)
-
+            content = process_style_sheet(res,
+                                          self._subresources,
+                                          self._local_paths)
             output.write(content)
 
     def _extract_subresource(self, res, output_path):
@@ -341,9 +311,6 @@ class WebArchive(object):
         """This archive's subframes (a list of WebArchive objects)."""
 
         return self._subframe_archives
-
-    # Regular expression matching a URL in a style sheet
-    _rx_style_sheet_url = re.compile(r"url\(([^\)]+)\)")
 
 
 # Record extensions for MIME types sometimes encountered in data URLs
