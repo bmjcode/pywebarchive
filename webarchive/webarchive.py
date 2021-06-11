@@ -91,7 +91,7 @@ class WebArchive(object):
                 for res in subframe_archive._subresources:
                     self._make_local_path(res)
 
-    def extract(self, output_path,
+    def extract(self, output_path, single_file=True,
                 *, before_cb=None, after_cb=None, canceled_cb=None):
         """Extract the archive's contents as a standard HTML document.
 
@@ -123,12 +123,18 @@ class WebArchive(object):
         # Strip the extension from the output path
         base, ext = os.path.splitext(os.path.basename(output_path))
 
-        # Basename of the directory containing extracted subresources
-        subresource_dir_base = "{0}_files".format(base)
+        if single_file:
+            # Include subresources inline with the main resource's HTML
+            subresource_dir_base = None
+            subresource_dir = None
 
-        # Full path to the directory containing extracted subresources
-        subresource_dir = os.path.join(os.path.dirname(output_path),
-                                       subresource_dir_base)
+        else:
+            # Basename of the directory containing extracted subresources
+            subresource_dir_base = "{0}_files".format(base)
+
+            # Full path to the directory containing extracted subresources
+            subresource_dir = os.path.join(os.path.dirname(output_path),
+                                           subresource_dir_base)
 
         if canceled_cb and canceled_cb():
             return
@@ -140,40 +146,42 @@ class WebArchive(object):
                                     subresource_dir_base)
         AFTER(self._main_resource, output_path)
 
-        # Make a directory for subresources
-        if self._subresources or self._subframe_archives:
-            os.makedirs(subresource_dir, exist_ok=True)
+        if not single_file:
+            # Make a directory for subresources
+            if self._subresources or self._subframe_archives:
+                os.makedirs(subresource_dir, exist_ok=True)
 
-        # Identify subresources of this archive and any subframe archives
-        subresources = self._subresources[:]
-        for subframe_archive in self._subframe_archives:
-            subresources += subframe_archive._subresources
+            # Identify subresources of this archive and any subframe archives
+            subresources = self._subresources[:]
+            for subframe_archive in self._subframe_archives:
+                subresources += subframe_archive._subresources
 
-            # Extract this subframe's main resource to our subresources folder
-            sf_main_res = subframe_archive._main_resource
-            sf_local_path = os.path.join(subresource_dir,
-                                         self._local_paths[sf_main_res.url])
+                # Extract this subframe's main resource to our subresources
+                # directory
+                sf_main_res = subframe_archive._main_resource
+                sf_local_path = os.path.join(subresource_dir,
+                                             self._local_paths[sf_main_res.url])
 
-            if canceled_cb and canceled_cb():
-                return
+                if canceled_cb and canceled_cb():
+                    return
 
-            BEFORE(sf_main_res, sf_local_path)
-            self._extract_main_resource(sf_main_res, sf_local_path, "")
-            AFTER(sf_main_res, sf_local_path)
+                BEFORE(sf_main_res, sf_local_path)
+                self._extract_main_resource(sf_main_res, sf_local_path, "")
+                AFTER(sf_main_res, sf_local_path)
 
-        # Extract subresources
-        for res in subresources:
-            # Full path to the extracted subresource
-            subresource_path = os.path.join(subresource_dir,
-                                            self._local_paths[res.url])
+            # Extract subresources
+            for res in subresources:
+                # Full path to the extracted subresource
+                subresource_path = os.path.join(subresource_dir,
+                                                self._local_paths[res.url])
 
-            if canceled_cb and canceled_cb():
-                return
+                if canceled_cb and canceled_cb():
+                    return
 
-            # Extract this subresource
-            BEFORE(res, subresource_path)
-            self._extract_subresource(res, subresource_path)
-            AFTER(res, subresource_path)
+                # Extract this subresource
+                BEFORE(res, subresource_path)
+                self._extract_subresource(res, subresource_path)
+                AFTER(res, subresource_path)
 
     def resource_count(self):
         """Return the total number of WebResources in this archive.
@@ -198,6 +206,7 @@ class WebArchive(object):
             # references to files inside the archive
             mrp = MainResourceProcessor(res.url,
                                         subresource_dir,
+                                        self._subresources,
                                         self._local_paths,
                                         output)
             mrp.feed(str(res))
