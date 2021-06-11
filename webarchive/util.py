@@ -272,16 +272,16 @@ def process_style_sheet(res, subresources, local_paths=None):
                 content = content.replace(match, abs_url)
 
         else:
-            converted_to_data_uri = False
+            # Substitute the absolute URL if this resource,
+            # unless we find it in this webarchive.
+            replacement = abs_url
             for subresource in subresources:
                 if subresource.url == abs_url:
-                    content = content.replace(match,
-                                              subresource.to_data_uri())
-                    converted_to_data_uri = True
+                    # This subresource is in our webarchive,
+                    # so inline its contents using a data URI.
+                    replacement = subresource.to_data_uri()
                     break
 
-            if not converted_to_data_uri:
-                # Substitute the absolute URL of this resource.
-                content = content.replace(match, abs_url)
+            content = content.replace(match, abs_url)
 
     return content
