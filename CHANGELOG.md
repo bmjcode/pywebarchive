@@ -10,7 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   * External scripts and style sheets are replaced with inline content.
   * External images are embedded using data URIs.
 ### Changed
-* Made single-file extraction mode the default.
+* Single-file extraction is now the default.
+### Removed
+* The `Extractor` class, included only for backwards compatibility with the poorly thought-out 0.1.x API.
 
 ## [0.2.4] - 2020-02-22
 ### Added

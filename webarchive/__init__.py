@@ -10,11 +10,10 @@ Example usage:
     archive.extract("example.html")
 """
 
-from .extractor import Extractor
 from .webarchive import WebArchive
 from .webresource import WebResource
 
-__all__ = ["Extractor", "WebArchive", "WebResource"]
+__all__ = ["WebArchive", "WebResource"]
 
 
 # This provides a somewhat more pythonic API than creating a WebArchive
