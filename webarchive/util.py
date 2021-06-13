@@ -33,7 +33,7 @@ class MainResourceProcessor(HTMLParser):
         older versions of Safari that don't support that attribute.
     """
 
-    __slots__ = ["_archive", "_output", "_root",
+    __slots__ = ["_archive", "_output", "_root", "_is_xhtml",
                  "_subresources", "_subframe_archives"]
 
     def __init__(self, archive, output, root):
@@ -45,80 +45,22 @@ class MainResourceProcessor(HTMLParser):
         self._output = output
         self._root = root
 
+        # Identify whether this document is XHTML based on the MIME type
+        main_resource = archive.main_resource
+        self._is_xhtml = (main_resource.mime_type == "application/xhtml+xml")
+
         self._subresources = archive.subresources
         self._subframe_archives = archive.subframe_archives
 
     def handle_starttag(self, tag, attrs):
         """Handle the start of a tag."""
 
-        if self._root is None:
-            inline_content = None
+        self._output.write(self._build_starttag(tag, attrs))
 
-            if tag == "link":
-                link_href = None
-                is_stylesheet = False
-                for attr, value in attrs:
-                    if attr == "rel" and value.lower() == "stylesheet":
-                        is_stylesheet = True
-                    elif attr == "href":
-                        link_href = self._absolute_url(value)
-                if is_stylesheet:
-                    # Replace this link with an inline <style> block
-                    content = ""
-                    try:
-                        res = self._archive.get_subresource(link_href)
-                        subresources = self._archive.subresources
-                        # HTML entities in <style> are NOT escaped
-                        content = process_style_sheet(res, subresources)
-                    except (WebArchiveError):
-                        pass
-                    # Bypass the standard logic since we're replacing this
-                    # with an entirely different tag
-                    self._output.write("<style>{0}</style>".format(content))
-                    return
+    def handle_startendtag(self, tag, attrs):
+        """Handle an XHTML-style "empty" start tag."""
 
-            elif tag == "script":
-                for i, (attr, value) in enumerate(attrs):
-                    if attr == "src":
-                        # Include the script content inline
-                        script_src = self._absolute_url(value)
-                        try:
-                            res = self._archive.get_subresource(script_src)
-                            # HTML entities in <script> are NOT escaped
-                            inline_content = bytes_to_str(res.data)
-                        except (WebArchiveError):
-                            pass
-                        # Remove the src attribute
-                        del attrs[i]
-
-        # Open the tag
-        tag_data = ["<", tag]
-
-        # Process attributes
-        for attr, value in attrs:
-            if tag == "img" and attr == "srcset":
-                # Omit the srcset attribute, which is not supported by older
-                # versions of Safari (including the obsolete 5.1.7 for Windows,
-                # which is the only version I have available to test with).
-                continue
-
-            tag_data.append(" ")
-            tag_data.append(attr)
-            tag_data.append('="')
-            tag_data.append(self._process_attr_value(tag, attr, value))
-            tag_data.append('"')
-
-        # Close the tag
-        tag_data.append(">")
-
-        # If this is the opening <html> tag, indicate that this file
-        # has been processed
-        if tag == "html":
-            tag_data.insert(0, "<!-- Processed by pywebarchive -->\n")
-
-        self._output.write("".join(tag_data))
-        if self._root is None and inline_content:
-            self._output.write(inline_content)
+        self._output.write(self._build_starttag(tag, attrs, True))
 
     def handle_endtag(self, tag):
         """Handle the end of a tag."""
@@ -152,6 +94,10 @@ class MainResourceProcessor(HTMLParser):
         # This should probably be on its own line
         self._output.write("<!{0}>\n".format(decl))
 
+        # This caches pre-XHTML5 documents incorrectly served as standard HTML
+        if "//DTD XHTML " in decl:
+            self._is_xhtml = True
+
     def _absolute_url(self, url):
         """Return the absolute URL to the specified resource."""
 
@@ -178,6 +124,82 @@ class MainResourceProcessor(HTMLParser):
         except (WebArchiveError):
             # Return the absolute URL to this resource
             return abs_url
+
+    def _build_starttag(self, tag, attrs, is_empty=False):
+        """Build an HTML start tag."""
+
+        if self._root is None:
+            inline_content = None
+
+            if tag == "link":
+                link_href = None
+                is_stylesheet = False
+                for attr, value in attrs:
+                    if attr == "rel" and value.lower() == "stylesheet":
+                        is_stylesheet = True
+                    elif attr == "href":
+                        link_href = self._absolute_url(value)
+                if is_stylesheet:
+                    # Replace this link with an inline <style> block
+                    content = ""
+                    try:
+                        res = self._archive.get_subresource(link_href)
+                        subresources = self._archive.subresources
+                        # HTML entities in <style> are NOT escaped
+                        content = process_style_sheet(res, subresources)
+                    except (WebArchiveError):
+                        pass
+                    # Bypass the standard logic since we're replacing this
+                    # with an entirely different tag
+                    return "<style>{0}</style>".format(content)
+
+            elif tag == "script":
+                for i, (attr, value) in enumerate(attrs):
+                    if attr == "src":
+                        # Include the script content inline
+                        script_src = self._absolute_url(value)
+                        try:
+                            res = self._archive.get_subresource(script_src)
+                            # HTML entities in <script> are NOT escaped
+                            inline_content = bytes_to_str(res.data)
+                        except (WebArchiveError):
+                            pass
+                        # Remove the src attribute
+                        del attrs[i]
+
+        # Open the tag
+        tag_data = ["<", tag]
+
+        # Process attributes
+        for attr, value in attrs:
+            if tag == "img" and attr == "srcset":
+                # Omit the srcset attribute, which is not supported by older
+                # versions of Safari (including the obsolete 5.1.7 for Windows,
+                # which is the only version I have available to test with).
+                continue
+
+            tag_data.append(" ")
+            tag_data.append(attr)
+            tag_data.append('="')
+            tag_data.append(self._process_attr_value(tag, attr, value))
+            tag_data.append('"')
+
+        # Close the tag
+        if self._is_xhtml and (is_empty or tag in self._VOID_ELEMENTS):
+            tag_data.append(" />")
+        else:
+            tag_data.append(">")
+
+        # Add inline content for embedded scripts, etc.
+        if self._root is None and inline_content:
+            tag_data.append(inline_content)
+
+        # If this is the opening <html> tag, indicate that this file
+        # has been processed by pywebarchive
+        if tag == "html":
+            tag_data.insert(0, "<!-- Processed by pywebarchive -->\n")
+
+        return "".join(tag_data)
 
     def _process_attr_value(self, tag, attr, value):
         """Process the value of a tag's attribute."""
@@ -228,6 +250,20 @@ class MainResourceProcessor(HTMLParser):
             value = self._resource_url(value)
 
         return escape(value, True)
+
+    # Valid self-closing tags (formally termed "void elements") in HTML
+    # See: http://xahlee.info/js/html5_non-closing_tag.html
+    #
+    # Python's HTMLParser is supposed to call handle_startendtag() when it
+    # encounters such a tag, but in practice this does not always happen.
+    # We thus check against this list of known self-closing tags to ensure
+    # these are correctly closed when processing XHTML documents.
+    _VOID_ELEMENTS = (
+        "area", "base", "br", "col", "embed", "hr", "img", "input", "link",
+        "meta", "param", "source", "track", "wbr",
+        # Obsolete tags
+        "command", "keygen", "menuitem"
+    )
 
 
 def base64_string(data, altchars=None):
