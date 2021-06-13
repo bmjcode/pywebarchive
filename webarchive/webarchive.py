@@ -133,6 +133,12 @@ class WebArchive(object):
                 *, before_cb=None, after_cb=None, canceled_cb=None):
         """Extract the archive's contents as a standard HTML document.
 
+        If single_file == True, the archive will be converted to a
+        single-file webpage, with subresources embedded using data URIs.
+        This feature is experimental. It is off by default for performance
+        reasons, since it requires significantly more processing time and
+        disk space than traditional multi-file extraction.
+
         You can specify these callback functions as keyword arguments to
         monitor or cancel the extraction process:
 

@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
-* Support for extracting webarchives to single-file HTML documents.
+* Experimental support for extracting webarchives to single-file HTML documents.
   * External scripts and style sheets are replaced with inline content.
   * External images are embedded using data URIs.
 * The `WebArchive.get_local_path()` method.
