@@ -12,8 +12,9 @@ Example usage:
 
 from .webarchive import WebArchive
 from .webresource import WebResource
+from .exceptions import WebArchiveError
 
-__all__ = ["WebArchive", "WebResource"]
+__all__ = ["WebArchive", "WebResource", "WebArchiveError"]
 
 
 # This provides a somewhat more pythonic API than creating a WebArchive
