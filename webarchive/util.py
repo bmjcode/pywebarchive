@@ -53,7 +53,7 @@ class MainResourceProcessor(HTMLParser):
         self._subframe_archives = archive.subframe_archives
 
     def handle_starttag(self, tag, attrs):
-        """Handle the start of a tag."""
+        """Handle a start tag."""
 
         self._output.write(self._build_starttag(tag, attrs))
 
@@ -63,7 +63,7 @@ class MainResourceProcessor(HTMLParser):
         self._output.write(self._build_starttag(tag, attrs, True))
 
     def handle_endtag(self, tag):
-        """Handle the end of a tag."""
+        """Handle an end tag."""
 
         self._output.write("</{0}>".format(tag))
 
