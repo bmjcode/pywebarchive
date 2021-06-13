@@ -17,7 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 * Correctly handle "empty" tags like `<img />` in XHTML documents.
 ### Removed
-* The `Extractor` class, included only for backwards compatibility with the poorly thought-out 0.1.x API.
+* The `Extractor` class, included only for backwards compatibility with the poorly thought-out 0.1.0 API.
 
 ## [0.2.4] - 2020-02-22
 ### Added
@@ -43,8 +43,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 **Note**: Version 0.2.0 was pulled shortly after posting due to problems with its `setup.py` script.
 
 ## [0.1.1] - 2018-10-19
+### Added
+* The `open()` function as the preferred way to open a WebArchive.
 ### Changed
-* API improvements and bugfixes; no new features added.
+* Moved extraction into the main `WebArchive` class.
+* Massive internal cleanup.
+### Deprecated
+* The `Extractor` class from the poorly thought-out initial API.
 
 ## [0.1.0] - 2018-10-16
 ### Added
