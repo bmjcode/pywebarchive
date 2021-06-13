@@ -116,6 +116,7 @@ class WebArchive(object):
         else:
             raise WebArchiveError("no subframe archive for the specified URL")
 
+
     def get_subresource(self, url):
         """Return the subresource at the specified URL."""
 
@@ -186,8 +187,26 @@ class WebArchive(object):
             if self._subresources or self._subframe_archives:
                 os.makedirs(subresource_dir, exist_ok=True)
 
+            # Identify subresources of this archive and any subframe archives
+            subresources = self._subresources[:]
+            for subframe_archive in self._subframe_archives:
+                subresources += subframe_archive._subresources
+
+                # Extract this subframe's main resource to our subresources
+                # directory
+                sf_main_res = subframe_archive._main_resource
+                sf_local_path = os.path.join(subresource_dir,
+                                             self._local_paths[sf_main_res.url])
+
+                if canceled_cb and canceled_cb():
+                    return
+
+                BEFORE(sf_main_res, sf_local_path)
+                subframe_archive._extract_main_resource(sf_local_path, "")
+                AFTER(sf_main_res, sf_local_path)
+
             # Extract subresources
-            for res in self._subresources:
+            for res in subresources:
                 # Full path to the extracted subresource
                 subresource_path = os.path.join(subresource_dir,
                                                 self._local_paths[res.url])
@@ -199,22 +218,6 @@ class WebArchive(object):
                 BEFORE(res, subresource_path)
                 self._extract_subresource(res, subresource_path)
                 AFTER(res, subresource_path)
-
-            # Extract subframe archives
-            for sf_arc in self._subframe_archives:
-                # URL of the subframe archive's main resource
-                sf_url = sf_arc.main_resource.url
-
-                # Full path to the extracted subframe archive
-                sf_arc_path = os.path.join(subresource_dir,
-                                           self._local_paths[sf_url])
-
-                # Extract this subframe archive
-                sf_arc.extract(sf_arc_path,
-                               single_file,
-                               before_cb=before_cb,
-                               after_cb=after_cb,
-                               canceled_cb=canceled_cb)
 
     def resource_count(self):
         """Return the total number of WebResources in this archive.

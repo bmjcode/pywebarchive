@@ -16,8 +16,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * The `WebArchiveError` exception.
 ### Changed
 * Single-file extraction is now the default.
-### Fixed
-* Extraction of subframe archives in multi-file mode.
 ### Removed
 * The `Extractor` class, included only for backwards compatibility with the poorly thought-out 0.1.x API.
 
