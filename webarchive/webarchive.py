@@ -129,7 +129,7 @@ class WebArchive(object):
         else:
             raise WebArchiveError("no subresource for the specified URL")
 
-    def extract(self, output_path, single_file=True,
+    def extract(self, output_path, single_file=False,
                 *, before_cb=None, after_cb=None, canceled_cb=None):
         """Extract the archive's contents as a standard HTML document.
 
