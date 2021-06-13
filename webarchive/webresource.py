@@ -1,6 +1,6 @@
 """WebResource class implementation."""
 
-from .util import base64_string
+from .util import make_data_uri
 
 
 __all__ = ["WebResource"]
@@ -70,8 +70,7 @@ class WebResource(object):
     def to_data_uri(self):
         """Return a data URI corresponding to this subresource's content."""
 
-        return "data:{0};base64,{1}".format(self._mime_type,
-                                            base64_string(self._data))
+        return make_data_uri(self._mime_type, self._data)
 
     @property
     def data(self):

@@ -7,8 +7,9 @@ import mimetypes
 
 from urllib.parse import urlparse, urljoin
 
+from .exceptions import WebArchiveError
 from .webresource import WebResource
-from .util import process_main_resource, process_style_sheet
+from .util import make_data_uri, process_main_resource, process_style_sheet
 
 
 __all__ = ["WebArchive"]
@@ -90,6 +91,44 @@ class WebArchive(object):
                 for res in subframe_archive._subresources:
                     self._make_local_path(res)
 
+    def get_local_path(self, url):
+        """Return the local path for the subresource at the specified URL.
+
+        The local path is the basename for the file that would be created
+        for this subresource if this archive were extracted.
+        """
+
+        if url in self._local_paths:
+            return self._local_paths[url]
+
+        else:
+            raise WebArchiveError("no local path for the specified URL")
+
+    def get_subframe_archive(self, url):
+        """Return the subframe archive for the specified URL."""
+
+        if not "://" in url:
+            raise WebArchiveError("must specify an absolute URL")
+
+        for subframe_archive in self._subframe_archives:
+            if subframe_archive.main_resource.url == url:
+                return subframe_archive
+        else:
+            raise WebArchiveError("no subframe archive for the specified URL")
+
+
+    def get_subresource(self, url):
+        """Return the subresource at the specified URL."""
+
+        if not "://" in url:
+            raise WebArchiveError("must specify an absolute URL")
+
+        for subresource in self._subresources:
+            if subresource.url == url:
+                return subresource
+        else:
+            raise WebArchiveError("no subresource for the specified URL")
+
     def extract(self, output_path, single_file=True,
                 *, before_cb=None, after_cb=None, canceled_cb=None):
         """Extract the archive's contents as a standard HTML document.
@@ -110,11 +149,6 @@ class WebArchive(object):
           canceled_cb()
             Returns True if extraction was canceled, False otherwise.
         """
-
-        # Single-file mode has not yet been tested on subframe archives.
-        # TODO: Figure out how to implement this.
-        if self._subframe_archives:
-            single_file = False
 
         def BEFORE(res, path):
             if before_cb:
@@ -145,9 +179,7 @@ class WebArchive(object):
 
         # Extract the main resource
         BEFORE(self._main_resource, output_path)
-        self._extract_main_resource(self._main_resource,
-                                    output_path,
-                                    subresource_dir_base)
+        self._extract_main_resource(output_path, subresource_dir_base)
         AFTER(self._main_resource, output_path)
 
         if not single_file:
@@ -170,7 +202,7 @@ class WebArchive(object):
                     return
 
                 BEFORE(sf_main_res, sf_local_path)
-                self._extract_main_resource(sf_main_res, sf_local_path, "")
+                subframe_archive._extract_main_resource(sf_local_path, "")
                 AFTER(sf_main_res, sf_local_path)
 
             # Extract subresources
@@ -201,16 +233,19 @@ class WebArchive(object):
 
         return res_count
 
-    def _extract_main_resource(self, res, output_path, subresource_dir):
+    def to_html(self):
+        """Return the archive's contents as a single-file HTML document."""
+
+        with io.StringIO() as output:
+            process_main_resource(self, output, None)
+            return output.getvalue()
+
+    def _extract_main_resource(self, output_path, subresource_dir):
         """Extract the archive's main resource."""
 
         with io.open(output_path, "w",
-                     encoding=res.text_encoding) as output:
-            process_main_resource(res,
-                                  subresource_dir,
-                                  self._subresources,
-                                  self._local_paths,
-                                  output)
+                     encoding=self._main_resource.text_encoding) as output:
+            process_main_resource(self, output, subresource_dir)
 
     def _extract_style_sheet(self, res, output_path):
         """Extract a style sheet subresource from the archive."""

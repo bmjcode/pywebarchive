@@ -1,5 +1,6 @@
 """Utility classes and functions for internal use."""
 
+import io
 import re
 
 from base64 import b64encode
@@ -7,9 +8,11 @@ from html import escape
 from html.parser import HTMLParser
 from urllib.parse import urljoin
 
+from .exceptions import WebArchiveError
+
 
 __all__ = ["base64_string", "bytes_to_str",
-           "process_main_resource", "process_style_sheet"]
+           "make_data_uri", "process_main_resource", "process_style_sheet"]
 
 
 # Regular expression matching a URL in a style sheet
@@ -30,18 +33,20 @@ class MainResourceProcessor(HTMLParser):
         older versions of Safari that don't support that attribute.
     """
 
-    __slots__ = ["_url", "_root", "_subresources", "_local_paths", "_output"]
+    __slots__ = ["_archive", "_output", "_root",
+                 "_subresources", "_subframe_archives"]
 
-    def __init__(self, url, root, subresources, local_paths, output):
+    def __init__(self, archive, output, root):
         """Return a new MainResourceProcessor."""
 
         HTMLParser.__init__(self, convert_charrefs=False)
 
-        self._url = url
-        self._root = root
-        self._subresources = subresources
-        self._local_paths = local_paths
+        self._archive = archive
         self._output = output
+        self._root = root
+
+        self._subresources = archive.subresources
+        self._subframe_archives = archive.subframe_archives
 
     def handle_starttag(self, tag, attrs):
         """Handle the start of a tag."""
@@ -60,12 +65,13 @@ class MainResourceProcessor(HTMLParser):
                 if is_stylesheet:
                     # Replace this link with an inline <style> block
                     content = ""
-                    for subresource in self._subresources:
-                        if subresource.url == link_href:
-                            # HTML entities in <style> are NOT escaped
-                            content = process_style_sheet(subresource,
-                                                          self._subresources)
-                            break
+                    try:
+                        res = self._archive.get_subresource(link_href)
+                        subresources = self._archive.subresources
+                        # HTML entities in <style> are NOT escaped
+                        content = process_style_sheet(res, subresources)
+                    except (WebArchiveError):
+                        pass
                     # Bypass the standard logic since we're replacing this
                     # with an entirely different tag
                     self._output.write("<style>{0}</style>".format(content))
@@ -76,11 +82,12 @@ class MainResourceProcessor(HTMLParser):
                     if attr == "src":
                         # Include the script content inline
                         script_src = self._absolute_url(value)
-                        for subresource in self._subresources:
-                            if subresource.url == script_src:
-                                # HTML entities in <script> are NOT escaped
-                                inline_content = bytes_to_str(subresource.data)
-                                break
+                        try:
+                            res = self._archive.get_subresource(script_src)
+                            # HTML entities in <script> are NOT escaped
+                            inline_content = bytes_to_str(res.data)
+                        except (WebArchiveError):
+                            pass
                         # Remove the src attribute
                         del attrs[i]
 
@@ -148,7 +155,7 @@ class MainResourceProcessor(HTMLParser):
     def _absolute_url(self, url):
         """Return the absolute URL to the specified resource."""
 
-        return urljoin(self._url, url)
+        return urljoin(self._archive.main_resource.url, url)
 
     def _resource_url(self, orig_url):
         """Return an appropriate URL for the specified resource.
@@ -160,15 +167,15 @@ class MainResourceProcessor(HTMLParser):
         # Get the absolute URL of the original resource
         abs_url = self._absolute_url(orig_url)
 
-        if abs_url in self._local_paths:
+        try:
+            local_path = self._archive.get_local_path(abs_url)
             # Return the local path to this resource
             if self._root:
-                return "{0}/{1}".format(self._root,
-                                        self._local_paths[abs_url])
+                return "{0}/{1}".format(self._root, local_path)
             else:
-                return self._local_paths[abs_url]
+                return local_path
 
-        else:
+        except (WebArchiveError):
             # Return the absolute URL to this resource
             return abs_url
 
@@ -184,9 +191,12 @@ class MainResourceProcessor(HTMLParser):
                     value = self._resource_url(value)
                 else:
                     # Inline this image using a data URI
-                    for subresource in self._subresources:
-                        if subresource.url == self._absolute_url(value):
-                            value = subresource.to_data_uri()
+                    try:
+                        img_src = self._absolute_url(value)
+                        res = self._archive.get_subresource(img_src)
+                        value = res.to_data_uri()
+                    except (WebArchiveError):
+                        pass
 
             elif attr == "srcset":
                 # Process the HTML5 srcset attribute
@@ -197,6 +207,22 @@ class MainResourceProcessor(HTMLParser):
                     srcset.append("{0} {1}".format(src, res))
 
                 value = ", ".join(srcset)
+
+        elif tag in ("frame", "iframe"):
+            if attr == "src":
+                if self._root:
+                    value = self._resource_url(value)
+                else:
+                    # Inline this frame's contents as a data URI
+                    try:
+                        frame_src = self._absolute_url(value)
+                        sf = self._archive.get_subframe_archive(frame_src)
+                        mime_type = sf.main_resource.mime_type
+                        text_encoding = sf.main_resource.text_encoding
+                        data = sf.to_html().encode(encoding=text_encoding)
+                        value = make_data_uri(mime_type, data)
+                    except (WebArchiveError):
+                        pass
 
         elif attr in ("action", "href", "src"):
             value = self._resource_url(value)
@@ -214,20 +240,25 @@ def bytes_to_str(data):
     return "".join(map(chr, data))
 
 
-def process_main_resource(res,
-                          subresource_dir, subresources, local_paths, output):
+def make_data_uri(mime_type, data):
+    """Return a data URI for the specified content."""
+
+    return "data:{0};base64,{1}".format(mime_type, base64_string(data))
+
+
+def process_main_resource(archive, output, subresource_dir):
     """Process a webarchive's main WebResource."""
 
     # Make sure this resource is an appropriate content type
-    if not res.mime_type in ("text/html", "application/xhtml+xml"):
+    if not archive.main_resource.mime_type in ("text/html",
+                                               "application/xhtml+xml"):
         raise TypeError("res must have mime_type == "
                         "'text/html' or 'application/xhtml+xml'")
 
     # Feed the content through the MainResourceProcessor to rewrite
     # references to files inside the archive
-    mrp = MainResourceProcessor(res.url, subresource_dir,
-                                subresources, local_paths, output)
-    mrp.feed(str(res))
+    mrp = MainResourceProcessor(archive, output, subresource_dir)
+    mrp.feed(str(archive.main_resource))
 
 
 def process_style_sheet(res, subresources, local_paths=None):
