@@ -33,8 +33,7 @@ class MainResourceProcessor(HTMLParser):
         older versions of Safari that don't support that attribute.
     """
 
-    __slots__ = ["_archive", "_output", "_root", "_is_xhtml",
-                 "_subresources", "_subframe_archives"]
+    __slots__ = ["_archive", "_output", "_root", "_is_xhtml"]
 
     def __init__(self, archive, output, root):
         """Return a new MainResourceProcessor."""
@@ -48,9 +47,6 @@ class MainResourceProcessor(HTMLParser):
         # Identify whether this document is XHTML based on the MIME type
         main_resource = archive.main_resource
         self._is_xhtml = (main_resource.mime_type == "application/xhtml+xml")
-
-        self._subresources = archive.subresources
-        self._subframe_archives = archive.subframe_archives
 
     def handle_starttag(self, tag, attrs):
         """Handle a start tag."""
