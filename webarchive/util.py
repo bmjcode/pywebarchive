@@ -203,6 +203,22 @@ class MainResourceProcessor(HTMLParser):
         if tag == "a" and attr == "href":
             value = self._absolute_url(value)
 
+        elif tag in ("frame", "iframe"):
+            if attr == "src":
+                if self._root:
+                    value = self._resource_url(value)
+                else:
+                    # Inline this frame's contents as a data URI
+                    try:
+                        frame_src = self._absolute_url(value)
+                        sf = self._archive.get_subframe_archive(frame_src)
+                        mime_type = sf.main_resource.mime_type
+                        text_encoding = sf.main_resource.text_encoding
+                        data = sf.to_html().encode(encoding=text_encoding)
+                        value = make_data_uri(mime_type, data)
+                    except (WebArchiveError):
+                        pass
+
         elif tag == "img":
             if attr == "src":
                 if self._root:
@@ -226,22 +242,7 @@ class MainResourceProcessor(HTMLParser):
 
                 value = ", ".join(srcset)
 
-        elif tag in ("frame", "iframe"):
-            if attr == "src":
-                if self._root:
-                    value = self._resource_url(value)
-                else:
-                    # Inline this frame's contents as a data URI
-                    try:
-                        frame_src = self._absolute_url(value)
-                        sf = self._archive.get_subframe_archive(frame_src)
-                        mime_type = sf.main_resource.mime_type
-                        text_encoding = sf.main_resource.text_encoding
-                        data = sf.to_html().encode(encoding=text_encoding)
-                        value = make_data_uri(mime_type, data)
-                    except (WebArchiveError):
-                        pass
-
+        # All other tags that accept these attributes
         elif attr in ("action", "href", "src"):
             value = self._resource_url(value)
 
