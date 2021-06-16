@@ -124,44 +124,27 @@ class MainResourceProcessor(HTMLParser):
     def _build_starttag(self, tag, attrs, is_empty=False):
         """Build an HTML start tag."""
 
-        if self._root is None:
-            inline_content = None
-
-            if tag == "link":
-                link_href = None
-                is_stylesheet = False
-                for attr, value in attrs:
-                    if attr == "rel" and value.lower() == "stylesheet":
-                        is_stylesheet = True
-                    elif attr == "href":
-                        link_href = self._absolute_url(value)
-                if is_stylesheet:
-                    # Replace this link with an inline <style> block
-                    content = ""
-                    try:
-                        res = self._archive.get_subresource(link_href)
-                        subresources = self._archive.subresources
-                        # HTML entities in <style> are NOT escaped
-                        content = process_style_sheet(res, subresources)
-                    except (WebArchiveError):
-                        pass
-                    # Bypass the standard logic since we're replacing this
-                    # with an entirely different tag
-                    return "<style>{0}</style>".format(content)
-
-            elif tag == "script":
-                for i, (attr, value) in enumerate(attrs):
-                    if attr == "src":
-                        # Include the script content inline
-                        script_src = self._absolute_url(value)
-                        try:
-                            res = self._archive.get_subresource(script_src)
-                            # HTML entities in <script> are NOT escaped
-                            inline_content = bytes_to_str(res.data)
-                        except (WebArchiveError):
-                            pass
-                        # Remove the src attribute
-                        del attrs[i]
+        if self._root is None and tag == "link":
+            link_href = None
+            is_stylesheet = False
+            for attr, value in attrs:
+                if attr == "rel" and value.lower() == "stylesheet":
+                    is_stylesheet = True
+                elif attr == "href":
+                    link_href = self._absolute_url(value)
+            if is_stylesheet:
+                # Convert <link rel="stylesheet"> to <style>...</style>
+                content = ""
+                try:
+                    res = self._archive.get_subresource(link_href)
+                    subresources = self._archive.subresources
+                    # HTML entities in <style> are NOT escaped
+                    content = process_style_sheet(res, subresources)
+                except (WebArchiveError):
+                    pass
+                # Bypass the standard logic since we're replacing this
+                # with an entirely different tag
+                return "<style>{0}</style>".format(content)
 
         # Open the tag
         tag_data = ["<", tag]
@@ -186,10 +169,6 @@ class MainResourceProcessor(HTMLParser):
         else:
             tag_data.append(">")
 
-        # Add inline content for embedded scripts, etc.
-        if self._root is None and inline_content:
-            tag_data.append(inline_content)
-
         # If this is the opening <html> tag, indicate that this file
         # has been processed by pywebarchive
         if tag == "html":
@@ -200,15 +179,23 @@ class MainResourceProcessor(HTMLParser):
     def _process_attr_value(self, tag, attr, value):
         """Process the value of a tag's attribute."""
 
-        if tag == "a" and attr == "href":
+        # NOTE: <link rel="stylesheet"> receives special handling in
+        # _build_starttag(), so we do not need to process it here.
+
+        if ((tag == "a" and attr == "href")
+            or (tag == "form" and attr == "action")):
+            # These always refer to content outside the WebArchive, which
+            # only stores a single page and its embedded content
             value = self._absolute_url(value)
 
-        elif tag in ("frame", "iframe"):
-            if attr == "src":
+        elif (attr == "src"
+              or (tag == "link" and attr == "href")):
+            if tag in ("frame", "iframe"):
+                # Process the src attribute for HTML frames
                 if self._root:
                     value = self._resource_url(value)
                 else:
-                    # Inline this frame's contents as a data URI
+                    # Attempt to inline this frame's contents using a data URI
                     try:
                         frame_src = self._absolute_url(value)
                         sf = self._archive.get_subframe_archive(frame_src)
@@ -217,34 +204,38 @@ class MainResourceProcessor(HTMLParser):
                         data = sf.to_html().encode(encoding=text_encoding)
                         value = make_data_uri(mime_type, data)
                     except (WebArchiveError):
+                        # Content is not in this WebArchive
                         pass
 
-        elif tag == "img":
-            if attr == "src":
+            else:
+                # Process the src attribute for images, scripts, etc.
                 if self._root:
                     value = self._resource_url(value)
                 else:
-                    # Inline this image using a data URI
+                    # Attempt to inline this content using a data URI
+                    #
+                    # Note that scripts, too, are deliberately inlined using
+                    # data URIs, rather than by inserting their content
+                    # directly into the <script> block as might seem more
+                    # intuitive. This is to avoid difficulties with scripts
+                    # containing unescaped HTML tags.
                     try:
-                        img_src = self._absolute_url(value)
-                        res = self._archive.get_subresource(img_src)
+                        content_src = self._absolute_url(value)
+                        res = self._archive.get_subresource(content_src)
                         value = res.to_data_uri()
                     except (WebArchiveError):
+                        # Content is not in this WebArchive
                         pass
 
-            elif attr == "srcset":
-                # Process the HTML5 srcset attribute
-                srcset = []
-                for item in map(str.strip, value.split(",")):
-                    src, res = item.split(" ", 1)
-                    src = self._resource_url(src)
-                    srcset.append("{0} {1}".format(src, res))
+        elif attr == "srcset":
+            # Process the HTML5 srcset attribute
+            srcset = []
+            for item in map(str.strip, value.split(",")):
+                src, res = item.split(" ", 1)
+                src = self._resource_url(src)
+                srcset.append("{0} {1}".format(src, res))
 
-                value = ", ".join(srcset)
-
-        # All other tags that accept these attributes
-        elif attr in ("action", "href", "src"):
-            value = self._resource_url(value)
+            value = ", ".join(srcset)
 
         return escape(value, True)
 
