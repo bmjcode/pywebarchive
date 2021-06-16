@@ -55,6 +55,9 @@ class WebArchiveTest(unittest.TestCase):
 
         resource = self.archive.main_resource
 
+        # Assert that we can identify this WebResource's parent WebArchive
+        self.assertEqual(resource.archive, self.archive)
+
         # Assert that WebResource properties return the correct values
         self.assertEqual(resource.data, resource._data)
         self.assertEqual(resource.frame_name, resource._frame_name)

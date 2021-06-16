@@ -20,11 +20,14 @@ class WebResource(object):
     # WebResourceURL
     # WebResourceFrameName
 
-    __slots__ = ["_data", "_mime_type", "_url",
+    __slots__ = ["_archive", "_data", "_mime_type", "_url",
                  "_text_encoding", "_frame_name"]
 
-    def __init__(self, plist_data):
+    def __init__(self, archive, plist_data):
         """Return a new WebResource object."""
+
+        # The parent WebArchive
+        self._archive = archive
 
         # Required attributes
         self._data = plist_data["WebResourceData"]
@@ -71,6 +74,12 @@ class WebResource(object):
         """Return a data URI corresponding to this subresource's content."""
 
         return make_data_uri(self._mime_type, self._data)
+
+    @property
+    def archive(self):
+        """This resource's parent WebArchive."""
+
+        return self._archive
 
     @property
     def data(self):

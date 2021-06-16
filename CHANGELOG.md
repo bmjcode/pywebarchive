@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * The `WebArchive.get_subframe_archive()` method.
 * The `WebArchive.get_subresource()` method.
 * The `WebArchive.to_html()` method.
+* The `WebResource.archive` property.
 * The `WebArchiveError` exception.
 ### Fixed
 * Correctly handle "empty" tags like `<img />` in XHTML documents.
