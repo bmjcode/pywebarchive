@@ -116,7 +116,6 @@ class WebArchive(object):
         else:
             raise WebArchiveError("no subframe archive for the specified URL")
 
-
     def get_subresource(self, url):
         """Return the subresource at the specified URL."""
 
