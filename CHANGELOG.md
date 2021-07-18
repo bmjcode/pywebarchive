@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.3.0] - 2021-07-18
 ### Added
 * Experimental support for extracting webarchives to single-file HTML documents.
   * External scripts and style sheets are replaced with inline content.
@@ -12,14 +12,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * New command-line options for `extractor.py`:
   * `-s` / `--single-file` to extract archive contents to a single HTML file.
   * `-o` / `--open-page` to open the extracted webpage when finished.
-* The `WebArchive.get_local_path()` method.
-* The `WebArchive.get_subframe_archive()` method.
-* The `WebArchive.get_subresource()` method.
-* The `WebArchive.to_html()` method.
-* The `WebResource.archive` property.
+* New `WebArchive` class methods:
+  * `get_local_path()` returns the basename of the file created when a specified subresource is extracted.
+  * `get_subframe_archive()` returns the subframe archive corresponding to a specified URL.
+  * `get_subresource()` returns the subresource corresponding to a specified URL.
+  * `to_html()` returns the archive's contents as a single-file HTML document.
+* The `WebResource.archive` property, which identifies a given resource's parent `WebArchive`.
 * The `WebArchiveError` exception.
+### Changed
+* Moved the development status up to beta.
 ### Fixed
 * Correctly handle "empty" tags like `<img />` in XHTML documents.
+* Fixed local resource paths for extracted subframe archives.
 ### Removed
 * The `Extractor` class, included only for backwards compatibility with the poorly thought-out 0.1.0 API.
 
@@ -59,7 +63,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 * Initial public release.
 
-[Unreleased]: https://github.com/bmjcode/pywebarchive/compare/v0.2.4...HEAD
+[Unreleased]: https://github.com/bmjcode/pywebarchive/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/bmjcode/pywebarchive/compare/v0.2.4...v0.3.0
 [0.2.4]: https://github.com/bmjcode/pywebarchive/compare/v0.2.3...v0.2.4
 [0.2.3]: https://github.com/bmjcode/pywebarchive/compare/v0.2.2...v0.2.3
 [0.2.2]: https://github.com/bmjcode/pywebarchive/compare/v0.2.1...v0.2.2

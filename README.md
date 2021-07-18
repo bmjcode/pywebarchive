@@ -1,6 +1,6 @@
 **pywebarchive** is a Python 3 module for reading Apple's `.webarchive` files. It includes Webarchive Extractor, a tool to convert those files to standard HTML pages that you can open in any browser.
 
-pywebarchive is stable enough for everyday use. It remains in alpha because its support for the `.webarchive` format is a work in progress; in particular, some pages using advanced HTML5 features may not convert perfectly.
+pywebarchive is stable enough for everyday use. It remains in beta because its support for the `.webarchive` format is a work in progress; in particular, some pages using advanced HTML5 features may not convert perfectly.
 
 
 ## Webarchive Extractor

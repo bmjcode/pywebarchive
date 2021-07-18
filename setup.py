@@ -14,7 +14,7 @@ with open("README.md", "r") as readme:
 URL = "https://github.com/bmjcode/pywebarchive"
 PACKAGES = find_packages(exclude="test")
 CLASSIFIERS = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 4 - Beta",
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
