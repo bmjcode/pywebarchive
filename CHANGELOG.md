@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Experimental support for extracting webarchives to single-file HTML documents.
   * External scripts and style sheets are replaced with inline content.
   * External images are embedded using data URIs.
+* New command-line options for `extractor.py`:
+  * `-s` / `--single-file` to extract archive contents to a single HTML file.
+  * `-o` / `--open-page` to open the extracted webpage when finished.
 * The `WebArchive.get_local_path()` method.
 * The `WebArchive.get_subframe_archive()` method.
 * The `WebArchive.get_subresource()` method.
