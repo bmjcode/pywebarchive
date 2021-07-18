@@ -5,6 +5,7 @@
 import os
 import sys
 import optparse
+import webbrowser
 
 import webarchive
 
@@ -15,10 +16,17 @@ def main():
     parser = optparse.OptionParser(
         usage="%prog [options] input_path.webarchive [output_path.html]"
     )
-    parser.add_option("-s", "--single-file",
-                      action="store_true", dest="single_file", default=False,
-                      help="extract archive contents to a single HTML file "
-                           "with embedded resources (experimental)")
+
+    opt_group = parser.add_option_group("Extraction mode")
+    opt_group.add_option("-s", "--single-file",
+                         action="store_true", dest="single_file",
+                         help="extract archive contents to a single HTML file "
+                              "with embedded resources (experimental)")
+
+    opt_group = parser.add_option_group("Post-processing actions")
+    opt_group.add_option("-o", "--open-page",
+                         action="store_true", dest="open_page",
+                         help="open the extracted webpage when finished")
 
     options, args = parser.parse_args()
     if len(args) == 1:
@@ -42,6 +50,10 @@ def main():
     archive = webarchive.open(archive_path)
     archive.extract(output_path,
                     single_file=options.single_file)
+
+    if options.open_page:
+        # Open the extracted page
+        webbrowser.open(output_path)
 
 
 if __name__ == "__main__":
