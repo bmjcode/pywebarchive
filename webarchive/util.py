@@ -22,12 +22,20 @@ RX_STYLE_SHEET_URL = re.compile(r"url\(([^\)]+)\)")
 class MainResourceProcessor(HTMLParser):
     """Class to process the main resource in the webarchive.
 
-    This class uses HTMLParser to rewrite the main resource's HTML code
-    to make changes necessary to render the extracted page:
+    Most of the work here is rewriting references to external resources,
+    like the <img> tag's "src" attribute, since our local directory
+    structure may not match that of the original site. The intent is to
+    make the resulting HTML display identically to the original page.
 
-      * All href and src attributes referring to subresources in the
-        archive are changed to point to the local extracted copies.
+      * If the referenced content is one of this webarchive's subresources,
+        we substitute the local path of our extracted copy.
+
+      * Otherwise, we substitute the absolute URL of the original.
     """
+
+    # Implementation note: Using HTMLParser is a safer way to do this
+    # than simple text processing or regular expressions, given the
+    # prevalence of non-standard HTML code.
 
     __slots__ = ["_archive", "_output", "_root", "_is_xhtml"]
 
@@ -146,9 +154,6 @@ class MainResourceProcessor(HTMLParser):
 
     def _process_attr_value(self, tag, attr, value):
         """Process the value of a tag's attribute."""
-
-        # NOTE: <link rel="stylesheet"> receives special handling in
-        # _build_starttag(), so we do not need to process it here.
 
         if ((tag == "a" and attr == "href")
             or (tag == "form" and attr == "action")):
