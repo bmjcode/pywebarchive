@@ -124,28 +124,6 @@ class MainResourceProcessor(HTMLParser):
     def _build_starttag(self, tag, attrs, is_empty=False):
         """Build an HTML start tag."""
 
-        if self._root is None and tag == "link":
-            link_href = None
-            is_stylesheet = False
-            for attr, value in attrs:
-                if attr == "rel" and value.lower() == "stylesheet":
-                    is_stylesheet = True
-                elif attr == "href":
-                    link_href = self._absolute_url(value)
-            if is_stylesheet:
-                # Convert <link rel="stylesheet"> to <style>...</style>
-                content = ""
-                try:
-                    res = self._archive.get_subresource(link_href)
-                    subresources = self._archive.subresources
-                    # HTML entities in <style> are NOT escaped
-                    content = process_style_sheet(res, subresources)
-                except (WebArchiveError):
-                    pass
-                # Bypass the standard logic since we're replacing this
-                # with an entirely different tag
-                return "<style>{0}</style>".format(content)
-
         # Open the tag
         tag_data = ["<", tag]
 

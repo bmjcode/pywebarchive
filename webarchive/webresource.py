@@ -1,6 +1,6 @@
 """WebResource class implementation."""
 
-from .util import make_data_uri
+from .util import make_data_uri, process_style_sheet
 
 
 __all__ = ["WebResource"]
@@ -73,7 +73,13 @@ class WebResource(object):
     def to_data_uri(self):
         """Return a data URI corresponding to this subresource's content."""
 
-        return make_data_uri(self._mime_type, self._data)
+        if self.mime_type == "text/css":
+            content = process_style_sheet(self, self._archive.subresources)
+            data = bytes(content, encoding=self._text_encoding)
+        else:
+            data = self._data
+
+        return make_data_uri(self._mime_type, data)
 
     @property
     def archive(self):
