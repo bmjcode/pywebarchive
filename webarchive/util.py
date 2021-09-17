@@ -27,10 +27,6 @@ class MainResourceProcessor(HTMLParser):
 
       * All href and src attributes referring to subresources in the
         archive are changed to point to the local extracted copies.
-
-      * The optional srcset attribute is removed from <img> tags, since
-        it causes rendering problems when extracting webarchives saved by
-        older versions of Safari that don't support that attribute.
     """
 
     __slots__ = ["_archive", "_output", "_root", "_is_xhtml"]
@@ -129,12 +125,6 @@ class MainResourceProcessor(HTMLParser):
 
         # Process attributes
         for attr, value in attrs:
-            if tag == "img" and attr == "srcset":
-                # Omit the srcset attribute, which is not supported by older
-                # versions of Safari (including the obsolete 5.1.7 for Windows,
-                # which is the only version I have available to test with).
-                continue
-
             tag_data.append(" ")
             tag_data.append(attr)
             tag_data.append('="')
