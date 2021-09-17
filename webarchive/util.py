@@ -231,9 +231,14 @@ class MainResourceProcessor(HTMLParser):
             # Process the HTML5 srcset attribute
             srcset = []
             for item in map(str.strip, value.split(",")):
-                src, res = item.split(" ", 1)
-                src = self._resource_url(src)
-                srcset.append("{0} {1}".format(src, res))
+                if " " in item:
+                    # Source-size pair, like "image.png 2x"
+                    src, size = item.split(" ", 1)
+                    src = self._resource_url(src)
+                    srcset.append("{0} {1}".format(src, size))
+                else:
+                    # Source only -- no size specified
+                    srcset.append(item)
 
             value = ", ".join(srcset)
 
