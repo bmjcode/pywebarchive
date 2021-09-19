@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 * Don't delete the `srcset` attribute from `<img>`.
 * Embed style sheets in single-file mode using data URIs rather than `<style>`.
+* Cleaned up various internals.
 ### Fixed
 * Handle `srcset` entries without a width or pixel density descriptor.
 * Embed subresources recursively when calling `WebResource.to_data_uri()` on an archive's main resource.

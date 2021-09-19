@@ -1,6 +1,8 @@
 """WebResource class implementation."""
 
-from .util import make_data_uri, process_style_sheet
+from base64 import b64encode
+
+from .util import process_style_sheet
 
 
 __all__ = ["WebResource"]
@@ -90,7 +92,8 @@ class WebResource(object):
         else:
             data = self._data
 
-        return make_data_uri(self._mime_type, data)
+        url_data = str(b64encode(data), encoding="ascii")
+        return "data:{0};base64,{1}".format(self.mime_type, url_data)
 
     @property
     def archive(self):

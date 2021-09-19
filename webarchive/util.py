@@ -3,7 +3,6 @@
 import io
 import re
 
-from base64 import b64encode
 from html import escape
 from html.parser import HTMLParser
 from urllib.parse import urljoin
@@ -11,8 +10,7 @@ from urllib.parse import urljoin
 from .exceptions import WebArchiveError
 
 
-__all__ = ["base64_string", "bytes_to_str",
-           "make_data_uri", "process_main_resource", "process_style_sheet"]
+__all__ = ["process_main_resource", "process_style_sheet"]
 
 
 # Regular expression matching a URL in a style sheet
@@ -172,10 +170,7 @@ class MainResourceProcessor(HTMLParser):
                     try:
                         frame_src = self._absolute_url(value)
                         sf = self._archive.get_subframe_archive(frame_src)
-                        mime_type = sf.main_resource.mime_type
-                        text_encoding = sf.main_resource.text_encoding
-                        data = sf.to_html().encode(encoding=text_encoding)
-                        value = make_data_uri(mime_type, data)
+                        value = sf.main_resource.to_data_uri()
                     except (WebArchiveError):
                         # Content is not in this WebArchive
                         pass
@@ -230,22 +225,6 @@ class MainResourceProcessor(HTMLParser):
         # Obsolete tags
         "command", "keygen", "menuitem"
     )
-
-
-def base64_string(data, altchars=None):
-    """Return data encoded as a base64 string."""
-    return bytes_to_str(b64encode(data, altchars))
-
-
-def bytes_to_str(data):
-    """Convert bytes to str."""
-    return "".join(map(chr, data))
-
-
-def make_data_uri(mime_type, data):
-    """Return a data URI for the specified content."""
-
-    return "data:{0};base64,{1}".format(mime_type, base64_string(data))
 
 
 def process_main_resource(archive, output, subresource_dir):

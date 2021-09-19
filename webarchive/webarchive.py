@@ -9,7 +9,7 @@ from urllib.parse import urlparse, urljoin
 
 from .exceptions import WebArchiveError
 from .webresource import WebResource
-from .util import make_data_uri, process_main_resource, process_style_sheet
+from .util import process_main_resource, process_style_sheet
 
 
 __all__ = ["WebArchive"]
