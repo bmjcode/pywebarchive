@@ -73,9 +73,20 @@ class WebResource(object):
     def to_data_uri(self):
         """Return a data URI corresponding to this subresource's content."""
 
-        if self.mime_type == "text/css":
+        if self.url == self.archive.main_resource.url:
+            # This is the archive's main resource.
+            # Embed subresources recursively using data URIs.
+            #
+            # N.B. Comparing the URL is the quickest way to check this, but
+            # assumes a well-formed webarchive where the URL field is unique.
+            data = bytes(self.archive.to_html(), encoding=self._text_encoding)
+
+        elif self.mime_type == "text/css":
+            # This is a style sheet.
+            # Embed external content recursively using data URIs.
             content = process_style_sheet(self, self._archive.subresources)
             data = bytes(content, encoding=self._text_encoding)
+
         else:
             data = self._data
 
