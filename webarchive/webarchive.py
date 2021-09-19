@@ -155,6 +155,9 @@ class WebArchive(object):
             Returns True if extraction was canceled, False otherwise.
         """
 
+        if canceled_cb and canceled_cb():
+            return
+
         def BEFORE(res, path):
             if before_cb:
                 before_cb(res, path)
@@ -178,9 +181,6 @@ class WebArchive(object):
             # Full path to the directory containing extracted subresources
             subresource_dir = os.path.join(os.path.dirname(output_path),
                                            subresource_dir_base)
-
-        if canceled_cb and canceled_cb():
-            return
 
         # Extract the main resource
         BEFORE(self._main_resource, output_path)
