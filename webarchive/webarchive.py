@@ -170,9 +170,11 @@ class WebArchive(object):
         base, ext = os.path.splitext(os.path.basename(output_path))
 
         if single_file:
-            # Include subresources inline with the main resource's HTML
-            subresource_dir_base = None
-            subresource_dir = None
+            # Extract the main resource, embedding subresources recursively
+            # using data URIs
+            BEFORE(self._main_resource, output_path)
+            self._extract_main_resource(output_path, None)
+            AFTER(self._main_resource, output_path)
 
         else:
             # Basename of the directory containing extracted subresources
@@ -182,12 +184,11 @@ class WebArchive(object):
             subresource_dir = os.path.join(os.path.dirname(output_path),
                                            subresource_dir_base)
 
-        # Extract the main resource
-        BEFORE(self._main_resource, output_path)
-        self._extract_main_resource(output_path, subresource_dir_base)
-        AFTER(self._main_resource, output_path)
+            # Extract the main resource
+            BEFORE(self._main_resource, output_path)
+            self._extract_main_resource(output_path, subresource_dir_base)
+            AFTER(self._main_resource, output_path)
 
-        if not single_file:
             # Make a directory for subresources
             if self._subresources or self._subframe_archives:
                 os.makedirs(subresource_dir, exist_ok=True)
