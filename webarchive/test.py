@@ -157,6 +157,23 @@ class WebArchiveTest(unittest.TestCase):
             self.assertEqual(len(output_dir_contents),
                              self.archive.resource_count() - 1)
 
+    def test_webarchive_to_html(self):
+        """Test the WebArchive.to_html() method."""
+
+        # WebArchive.to_html() should produce the same output as
+        # extracting the archive in single-file mode
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            output_path = os.path.join(tmp_dir, "Wikipedia.html")
+
+            self.assertFalse(os.path.exists(output_path))
+            self.archive.extract(output_path, single_file=True)
+            self.assertTrue(os.path.isfile(output_path))
+
+            with open(output_path, "r") as source:
+                content = source.read()
+
+            self.assertEqual(self.archive.to_html(), content)
+
     def test_extracted_archive_display(self):
         """Test that an extracted WebArchive displays correctly.
 
