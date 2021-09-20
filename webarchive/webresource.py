@@ -54,7 +54,10 @@ class WebResource(object):
             self._frame_name = None
 
     def __bytes__(self):
-        """Return this resource's data as bytes."""
+        """Return this resource's data as bytes.
+
+        The returned data is verbatim as it is stored in the archive.
+        """
 
         return bytes(self._data)
 
@@ -64,6 +67,9 @@ class WebResource(object):
         This is only available for text resources (i.e., those whose MIME
         type starts with "text/"), and will raise a TypeError for other
         resources that cannot be reliably converted to strings.
+
+        The returned content is verbatim as it is stored in the archive,
+        in the encoding specified by this resource's text_encoding property.
         """
 
         if self.mime_type.startswith("text/"):
@@ -73,7 +79,11 @@ class WebResource(object):
             raise TypeError("cannot convert non-text resource to str")
 
     def to_data_uri(self):
-        """Return a data URI corresponding to this subresource's content."""
+        """Return this resource's content formatted as a data URI.
+
+        If this is an HTML or CSS resource, other referenced resources
+        in the parent webarchive will be embedded using nested data URIs.
+        """
 
         if self.url == self.archive.main_resource.url:
             # This is the archive's main resource.

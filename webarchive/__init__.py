@@ -1,7 +1,12 @@
 """Module for reading Apple's .webarchive files.
 
-pywebarchive is a Python module for reading Apple's .webarchive files
-and extracting them to standard HTML documents.
+pywebarchive is a Python module for reading Apple's webarchive format,
+which is used by Safari to save complete web pages -- including external
+resources like images, scripts, and style sheets -- in a single file.
+
+Media in the archive (called "resources") are indexed by URL; a webarchive
+may include resources of any type, including nested webarchives for HTML
+frames. Archived content is byte-for-byte identical to the original source.
 
 Example usage:
 

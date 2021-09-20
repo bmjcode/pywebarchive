@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 * Unit test for `WebArchive.to_html()`.
 ### Changed
+* Massively expanded module documentation.
 * Don't delete the `srcset` attribute from `<img>`.
 * Embed style sheets in single-file mode using data URIs rather than `<style>`.
 * Cleaned up various internals.

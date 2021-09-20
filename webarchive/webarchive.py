@@ -16,7 +16,12 @@ __all__ = ["WebArchive"]
 
 
 class WebArchive(object):
-    """Class for reading a .webarchive file."""
+    """Class representing the contents of a .webarchive file.
+
+    You should use webarchive.open() to access a webarchive rather than
+    instantiate this class directly, since the constructor arguments may
+    change in a future release.
+    """
 
     # WebMainResource
     # WebSubresources
@@ -130,16 +135,32 @@ class WebArchive(object):
 
     def extract(self, output_path, single_file=False,
                 *, before_cb=None, after_cb=None, canceled_cb=None):
-        """Extract the archive's contents as a standard HTML document.
+        """Extract this webarchive.
 
-        If single_file == True, the archive will be converted to a
-        single-file webpage, with subresources embedded using data URIs.
-        This feature is experimental. It is off by default for performance
-        reasons, since it requires significantly more processing time and
-        disk space than traditional multi-file extraction.
+        Extraction converts a webarchive to a standard HTML document.
+        The extracted page should be functionally identical, though not
+        necessarily source-identical, to the original.
 
-        You can specify these callback functions as keyword arguments to
-        monitor or cancel the extraction process:
+        External media such as images, scripts, and style sheets are
+        handled as follows:
+
+          * If single_file == False ("multi-file mode", the default),
+            media stored as subresources in this archive will be extracted
+            to a subdirectory, and references to these media rewritten to
+            use the local copy. This is similar to how the "Save As" command
+            in Mozilla Firefox and other browsers works.
+
+          * If single_file == True ("single-file mode"), media stored
+            as subresources in this archive will be recursively embedded
+            inline using data URIs. Note this may require significantly
+            more processing time and disk space than multi-file mode.
+
+          * References to media not present in this archive will be changed
+            to use absolute URLs, allowing them to remain functional as long
+            as the original source remains available.
+
+        You can specify the below callback functions as keyword arguments
+        to monitor or cancel the extraction process:
 
           before_cb(res, path)
             Called before extracting a WebResource.
@@ -240,7 +261,11 @@ class WebArchive(object):
         return res_count
 
     def to_html(self):
-        """Return the archive's contents as a single-file HTML document."""
+        """Return this archive's contents as an HTML document.
+
+        Subresources will be embedded recursively using data URIs,
+        as they are when extracting the archive in single-file mode.
+        """
 
         with io.StringIO() as output:
             process_main_resource(self, output, None)
