@@ -119,19 +119,19 @@ class WebResource(object):
 
     @property
     def mime_type(self):
-        """MIME type of this resource's data."""
+        """The MIME type of this resource's data."""
 
         return self._mime_type
 
     @property
     def url(self):
-        """Original URL of this resource."""
+        """The original URL of this resource."""
 
         return self._url
 
     @property
     def text_encoding(self):
-        """Text encoding of this resource's data."""
+        """The text encoding of this resource's data."""
 
         return self._text_encoding
 

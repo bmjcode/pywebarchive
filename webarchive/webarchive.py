@@ -101,6 +101,9 @@ class WebArchive(object):
 
         The local path is the basename for the file that would be created
         for this subresource if this archive were extracted.
+
+        If no such subresource exists in this archive, this will raise
+        a WebArchiveError exception.
         """
 
         if url in self._local_paths:
@@ -110,7 +113,11 @@ class WebArchive(object):
             raise WebArchiveError("no local path for the specified URL")
 
     def get_subframe_archive(self, url):
-        """Return the subframe archive for the specified URL."""
+        """Return the subframe archive for the specified URL.
+
+        If no such subframe archive exists in this archive, this will
+        raise a WebArchiveError exception.
+        """
 
         if not "://" in url:
             raise WebArchiveError("must specify an absolute URL")
@@ -122,7 +129,11 @@ class WebArchive(object):
             raise WebArchiveError("no subframe archive for the specified URL")
 
     def get_subresource(self, url):
-        """Return the subresource at the specified URL."""
+        """Return the subresource at the specified URL.
+
+        If no such subresource exists in this archive, this will raise
+        a WebArchiveError exception.
+        """
 
         if not "://" in url:
             raise WebArchiveError("must specify an absolute URL")
@@ -138,8 +149,8 @@ class WebArchive(object):
         """Extract this webarchive.
 
         Extraction converts a webarchive to a standard HTML document.
-        The extracted page should be functionally identical, though not
-        necessarily source-identical, to the original.
+        The resulting document should display and function identically
+        to the original, though it will not necessarily be byte-identical.
 
         External media such as images, scripts, and style sheets are
         handled as follows:
