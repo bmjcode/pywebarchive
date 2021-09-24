@@ -2,8 +2,8 @@
 
 import io
 import re
+import html
 
-from html import escape
 from html.parser import HTMLParser
 from urllib.parse import urljoin
 
@@ -35,7 +35,8 @@ class MainResourceProcessor(HTMLParser):
     # than simple text processing or regular expressions, given the
     # prevalence of non-standard HTML code.
 
-    __slots__ = ["_archive", "_output", "_root", "_is_xhtml"]
+    __slots__ = ["_archive", "_output", "_root", "_is_xhtml",
+                 "_escape_entities"]
 
     def __init__(self, archive, output, root):
         """Return a new MainResourceProcessor."""
@@ -50,8 +51,15 @@ class MainResourceProcessor(HTMLParser):
         main_resource = archive.main_resource
         self._is_xhtml = (main_resource.mime_type == "application/xhtml+xml")
 
+        # Escape entities unless we're in a <script> or <style> block;
+        # handle_starttag() and handle_endtag() will toggle this as needed
+        self._escape_entities = True
+
     def handle_starttag(self, tag, attrs):
         """Handle a start tag."""
+
+        if tag in self._UNESCAPED_ENTITY_TAGS:
+            self._escape_entities = False
 
         self._output.write(self._build_starttag(tag, attrs))
 
@@ -63,12 +71,18 @@ class MainResourceProcessor(HTMLParser):
     def handle_endtag(self, tag):
         """Handle an end tag."""
 
+        if tag in self._UNESCAPED_ENTITY_TAGS:
+            self._escape_entities = True
+
         self._output.write("</{0}>".format(tag))
 
     def handle_data(self, data):
         """Handle arbitrary data."""
 
-        self._output.write(escape(data, False))
+        if self._escape_entities:
+            self._output.write(html.escape(data, False))
+        else:
+            self._output.write(data)
 
     def handle_entityref(self, name):
         """Handle a named character reference."""
@@ -210,7 +224,7 @@ class MainResourceProcessor(HTMLParser):
 
             value = ", ".join(srcset)
 
-        return escape(value, True)
+        return html.escape(value, True)
 
     # Valid self-closing tags (formally termed "void elements") in HTML
     # See: http://xahlee.info/js/html5_non-closing_tag.html
@@ -225,6 +239,9 @@ class MainResourceProcessor(HTMLParser):
         # Obsolete tags
         "command", "keygen", "menuitem"
     )
+
+    # Tags that can include unescaped HTML entities
+    _UNESCAPED_ENTITY_TAGS = ("script", "style")
 
 
 def process_main_resource(archive, output, subresource_dir):
