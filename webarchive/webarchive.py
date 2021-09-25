@@ -285,9 +285,17 @@ class WebArchive(object):
     def _extract_main_resource(self, output_path, subresource_dir):
         """Extract the archive's main resource."""
 
-        with io.open(output_path, "w",
-                     encoding=self._main_resource.text_encoding) as output:
-            process_main_resource(self, output, subresource_dir)
+        if self._main_resource.mime_type in ("text/html",
+                                             "application/xhtml+xml"):
+            with io.open(output_path, "w",
+                         encoding=self._main_resource.text_encoding) as output:
+                process_main_resource(self, output, subresource_dir)
+
+        else:
+            # Non-HTML main resources are possible; for example, I have
+            # one from YouTube where the main resource is JavaScript.
+            with io.open(output_path, "wb") as output:
+                output.write(bytes(self._main_resource))
 
     def _extract_style_sheet(self, res, output_path):
         """Extract a style sheet subresource from the archive."""

@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Handle `srcset` entries without a width or pixel density descriptor.
 * Embed subresources recursively when calling `WebResource.to_data_uri()` on an archive's main resource.
 * Don't escape HTML entities in a `<script>` or `<style>` block.
+* Correctly handle non-HTML main resources.
 
 ## [0.3.0] - 2021-07-18
 ### Added
