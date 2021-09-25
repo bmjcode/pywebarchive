@@ -305,6 +305,42 @@ class WebArchive(object):
             with io.open(output_path, "wb") as output:
                 output.write(bytes(res))
 
+    def _get_absolute_url(self, url):
+        """Return the absolute URL to the specified resource."""
+
+        return urljoin(self._main_resource.url, url)
+
+    def _get_local_url(self, subresource_dir, orig_url):
+        """Return a (preferably local) URL for the specified resource.
+
+        This is used by MainResourceProcessor and others to rewrite
+        subresource URLs when extracting a webarchive.
+
+        If the resource exists in this archive, this will return its
+        local path if subresource_dir is specified, or a data URI
+        otherwise. If the resource is not in this archive, this will
+        return its absolute URL, so the extracted page will still
+        display correctly so long as the original remains available.
+        """
+
+        # Get the absolute URL of the original resource
+        abs_url = self._get_absolute_url(orig_url)
+
+        try:
+            if subresource_dir:
+                # Multi-file extraction mode
+                local_path = self.get_local_path(abs_url)
+                return "{0}/{1}".format(subresource_dir, local_path)
+
+            else:
+                # Single-file extraction mode
+                res = self.get_subresource(abs_url)
+                return res.to_data_uri()
+
+        except (WebArchiveError):
+            # Resource not in archive; return its absolute URL
+            return abs_url
+
     def _make_local_path(self, res):
         """Generate a local path for the specified WebResource."""
 
