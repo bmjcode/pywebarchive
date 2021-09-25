@@ -96,7 +96,7 @@ class WebResource(object):
         elif self.mime_type == "text/css":
             # This is a style sheet.
             # Embed external content recursively using data URIs.
-            content = process_style_sheet(self, self._archive.subresources)
+            content = process_style_sheet(self)
             data = bytes(content, encoding=self._text_encoding)
 
         else:

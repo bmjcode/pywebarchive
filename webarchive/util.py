@@ -215,14 +215,11 @@ def process_main_resource(archive, output, subresource_dir):
     mrp.feed(str(archive.main_resource))
 
 
-def process_style_sheet(res, subresources, local_paths=None):
+def process_style_sheet(res, subresource_dir=None):
     """Process a WebResource containing CSS data.
 
-    If local_paths is specified, any url() value referencing another
-    subresource in this webarchive will be replaced with the local path
-    of the extracted copy. If no local_paths are specified, references
-    to other subresources in this webarchive will be replaced with data
-    URIs corresponding to their contents.
+    This rewrites url() values to use a local path, data URI, or
+    absolute URL as appropriate; see WebArchive._get_local_url().
     """
 
     # Make sure this resource is an appropriate content type
@@ -245,34 +242,11 @@ def process_style_sheet(res, subresources, local_paths=None):
         if not match:
             continue
 
-        # Get the absolute URL of the original resource.
-        # Note paths in CSS are relative to the style sheet.
-        abs_url = urljoin(res.url, match)
-
-        if local_paths:
-            if abs_url in local_paths:
-                # Substitute the local path to this resource.
-                # Because paths in CSS are relative to the style sheet,
-                # and all subresources (like style sheets) are extracted
-                # to the same folder, the basename is all we need.
-                local_url = local_paths[abs_url]
+        # This check is necessary because we sometimes get blank URLs
+        # here, which can cause all manner of odd behavior
+        if match:
+            local_url = res.archive._get_local_url(subresource_dir, match)
+            if local_url != match:
                 content = content.replace(match, local_url)
-
-            else:
-                # Substitute the absolute URL of this resource.
-                content = content.replace(match, abs_url)
-
-        else:
-            # Substitute the absolute URL if this resource,
-            # unless we find it in this webarchive.
-            replacement = abs_url
-            for subresource in subresources:
-                if subresource.url == abs_url:
-                    # This subresource is in our webarchive,
-                    # so inline its contents using a data URI.
-                    replacement = subresource.to_data_uri()
-                    break
-
-            content = content.replace(match, abs_url)
 
     return content
