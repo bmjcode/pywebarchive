@@ -96,54 +96,6 @@ class WebArchive(object):
                 for res in subframe_archive._subresources:
                     self._make_local_path(res)
 
-    def get_local_path(self, url):
-        """Return the local path for the subresource at the specified URL.
-
-        The local path is the basename for the file that would be created
-        for this subresource if this archive were extracted.
-
-        If no such subresource exists in this archive, this will raise
-        a WebArchiveError exception.
-        """
-
-        if url in self._local_paths:
-            return self._local_paths[url]
-
-        else:
-            raise WebArchiveError("no local path for the specified URL")
-
-    def get_subframe_archive(self, url):
-        """Return the subframe archive for the specified URL.
-
-        If no such subframe archive exists in this archive, this will
-        raise a WebArchiveError exception.
-        """
-
-        if not "://" in url:
-            raise WebArchiveError("must specify an absolute URL")
-
-        for subframe_archive in self._subframe_archives:
-            if subframe_archive.main_resource.url == url:
-                return subframe_archive
-        else:
-            raise WebArchiveError("no subframe archive for the specified URL")
-
-    def get_subresource(self, url):
-        """Return the subresource at the specified URL.
-
-        If no such subresource exists in this archive, this will raise
-        a WebArchiveError exception.
-        """
-
-        if not "://" in url:
-            raise WebArchiveError("must specify an absolute URL")
-
-        for subresource in self._subresources:
-            if subresource.url == url:
-                return subresource
-        else:
-            raise WebArchiveError("no subresource for the specified URL")
-
     def extract(self, output_path, single_file=False,
                 *, before_cb=None, after_cb=None, canceled_cb=None):
         """Extract this webarchive.
@@ -250,6 +202,54 @@ class WebArchive(object):
                                          before_cb=before_cb,
                                          after_cb=after_cb,
                                          canceled_cb=canceled_cb)
+
+    def get_local_path(self, url):
+        """Return the local path for the subresource at the specified URL.
+
+        The local path is the basename for the file that would be created
+        for this subresource if this archive were extracted.
+
+        If no such subresource exists in this archive, this will raise
+        a WebArchiveError exception.
+        """
+
+        if url in self._local_paths:
+            return self._local_paths[url]
+
+        else:
+            raise WebArchiveError("no local path for the specified URL")
+
+    def get_subframe_archive(self, url):
+        """Return the subframe archive for the specified URL.
+
+        If no such subframe archive exists in this archive, this will
+        raise a WebArchiveError exception.
+        """
+
+        if not "://" in url:
+            raise WebArchiveError("must specify an absolute URL")
+
+        for subframe_archive in self._subframe_archives:
+            if subframe_archive.main_resource.url == url:
+                return subframe_archive
+        else:
+            raise WebArchiveError("no subframe archive for the specified URL")
+
+    def get_subresource(self, url):
+        """Return the subresource at the specified URL.
+
+        If no such subresource exists in this archive, this will raise
+        a WebArchiveError exception.
+        """
+
+        if not "://" in url:
+            raise WebArchiveError("must specify an absolute URL")
+
+        for subresource in self._subresources:
+            if subresource.url == url:
+                return subresource
+        else:
+            raise WebArchiveError("no subresource for the specified URL")
 
     def resource_count(self):
         """Return the total number of WebResources in this archive.
