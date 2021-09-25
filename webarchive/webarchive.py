@@ -107,20 +107,20 @@ class WebArchive(object):
         External media such as images, scripts, and style sheets are
         handled as follows:
 
-          * If single_file == False ("multi-file mode", the default),
-            media stored as subresources in this archive will be extracted
-            to a subdirectory, and references to these media rewritten to
-            use the local copy. This is similar to how the "Save As" command
-            in Mozilla Firefox and other browsers works.
+          * If single_file is False ("multi-file mode", the default),
+            this archive's subresources will be saved as individual
+            files. References to those resources will be rewritten
+            to use the local copies. This is how the "Save As" command
+            in most non-Safari browsers, like Mozilla Firefox, works.
 
-          * If single_file == True ("single-file mode"), media stored
-            as subresources in this archive will be recursively embedded
-            inline using data URIs. Note this may require significantly
-            more processing time and disk space than multi-file mode.
+          * If single_file is True ("single-file mode"), this archive's
+            subresources will be embedded inline using data URIs. As the
+            name suggests, this allows an entire page and its resources
+            to be saved in a single file. However, it typically requires
+            more disk space and processing time than multi-file extraction.
 
-          * References to media not present in this archive will be changed
-            to use absolute URLs, allowing them to remain functional as long
-            as the original source remains available.
+          * References to media not stored as subresources will be
+            replaced with absolute URLs.
 
         You can specify the below callback functions as keyword arguments
         to monitor or cancel the extraction process:

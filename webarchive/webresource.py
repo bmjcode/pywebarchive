@@ -11,9 +11,17 @@ __all__ = ["WebResource"]
 class WebResource(object):
     """An individual resource within a WebArchive.
 
-    WebResource objects are created by their parent WebArchive as it
-    processes the .webarchive file's contents. This class is not meant
-    to be instantiated directly by users.
+    A WebResource stores a particular media file's content, as well as
+    metadata such as its original URL, MIME type, and text encoding (if
+    applicable). Check the list of data descriptors below for details.
+
+    You can access a WebResource's content using its "data" property, or
+    by converting it to bytes. If the MIME type indicates it is a text
+    resource, you can also use str() to convert it to a string using its
+    specified text encoding. All of these return its content verbatim.
+
+    WebResource objects are created and managed by their parent WebArchive;
+    applications should not attempt to create them directly.
     """
 
     # WebResourceData
@@ -56,7 +64,7 @@ class WebResource(object):
     def __bytes__(self):
         """Return this resource's data as bytes.
 
-        The returned data is verbatim as it is stored in the archive.
+        The data is returned verbatim as it is stored in the archive.
         """
 
         return bytes(self._data)
@@ -68,7 +76,7 @@ class WebResource(object):
         type starts with "text/"), and will raise a TypeError for other
         resources that cannot be reliably converted to strings.
 
-        The returned content is verbatim as it is stored in the archive,
+        The content is returned verbatim as it is stored in the archive,
         in the encoding specified by this resource's text_encoding property.
         """
 
@@ -81,8 +89,8 @@ class WebResource(object):
     def to_data_uri(self):
         """Return this resource's content formatted as a data URI.
 
-        If this is an HTML or CSS resource, other referenced resources
-        in the parent webarchive will be embedded using nested data URIs.
+        If this is an HTML or CSS resource, other resources in the parent
+        archive will be embedded using nested data URIs.
         """
 
         if self.url == self.archive.main_resource.url:
