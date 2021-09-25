@@ -320,16 +320,31 @@ class WebArchive(object):
             with io.open(output_path, "wb") as output:
                 output.write(bytes(res))
 
-    def _get_absolute_url(self, url):
-        """Return the absolute URL to the specified resource."""
+    def _get_absolute_url(self, url, base=None):
+        """Return the absolute URL to the specified resource.
 
-        return urljoin(self._main_resource.url, url)
+        Relative URLs are resolved from the main resource's URL
+        unless an alternative base is specified. For example,
+        URLs in CSS files are resolved relative to the style sheet.
+        """
 
-    def _get_local_url(self, subresource_dir, orig_url):
+        if not base:
+            # Rewrite URLs relative to this archive's main resource
+            base = self._main_resource.url
+        elif not "://" in base:
+            raise WebArchiveError("base must be an absolute URL")
+
+        return urljoin(base, url)
+
+    def _get_local_url(self, subresource_dir, orig_url, base=None):
         """Return a (preferably local) URL for the specified resource.
 
         This is used by MainResourceProcessor and others to rewrite
         subresource URLs when extracting a webarchive.
+
+        Relative URLs are resolved from the main resource's URL
+        unless an alternative base is specified. For example,
+        URLs in CSS files are resolved relative to the style sheet.
 
         If the resource exists in this archive, this will return its
         local path if subresource_dir is a string, or a data URI
@@ -344,7 +359,7 @@ class WebArchive(object):
         """
 
         # Get the absolute URL of the original resource
-        abs_url = self._get_absolute_url(orig_url)
+        abs_url = self._get_absolute_url(orig_url, base)
 
         try:
             if subresource_dir is None:

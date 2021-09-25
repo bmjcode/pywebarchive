@@ -245,7 +245,10 @@ def process_style_sheet(res, subresource_dir=None):
         # This check is necessary because we sometimes get blank URLs
         # here, which can cause all manner of odd behavior
         if match:
-            local_url = res.archive._get_local_url(subresource_dir, match)
+            # URLs in CSS files are resolved relative to the style sheet
+            local_url = res.archive._get_local_url(subresource_dir,
+                                                   match,
+                                                   res.url)
             if local_url != match:
                 content = content.replace(match, local_url)
 
