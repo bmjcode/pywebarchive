@@ -3,7 +3,7 @@
 A webarchive stores a complete web page -- including external media like
 images, scripts, and style sheets -- in a single file. It is most notable
 as the default format for the Safari browser's "Save As" command, though
-other Apple applications also use it for various purposes.
+other Apple software also uses it for various purposes.
 
 Media in the archive, called "resources", are indexed by URL. A webarchive
 may include resources of any type, including nested webarchives for HTML
