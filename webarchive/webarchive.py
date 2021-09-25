@@ -193,6 +193,12 @@ class WebArchive(object):
 
             # Recursively extract subframe archives
             for subframe_archive in self._subframe_archives:
+                # We test this here to stop processing further subframe
+                # archives; the nested calls to extract() will separately
+                # test this to stop subresource extraction.
+                if canceled_cb and canceled_cb():
+                    return
+
                 sf_main_res = subframe_archive._main_resource
                 sf_local_path = os.path.join(subresource_dir,
                                              self._local_paths[sf_main_res.url])
