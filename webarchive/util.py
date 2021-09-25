@@ -181,13 +181,13 @@ class MainResourceProcessor(HTMLParser):
                     value = self._resource_url(value)
                 else:
                     # Attempt to inline this frame's contents using a data URI
+                    frame_src = self._absolute_url(value)
                     try:
-                        frame_src = self._absolute_url(value)
                         sf = self._archive.get_subframe_archive(frame_src)
                         value = sf.main_resource.to_data_uri()
                     except (WebArchiveError):
                         # Content is not in this WebArchive
-                        pass
+                        value = frame_src
 
             else:
                 # Process the src attribute for images, scripts, etc.
@@ -201,13 +201,13 @@ class MainResourceProcessor(HTMLParser):
                     # directly into the <script> block as might seem more
                     # intuitive. This is to avoid difficulties with scripts
                     # containing unescaped HTML tags.
+                    content_src = self._absolute_url(value)
                     try:
-                        content_src = self._absolute_url(value)
                         res = self._archive.get_subresource(content_src)
                         value = res.to_data_uri()
                     except (WebArchiveError):
                         # Content is not in this WebArchive
-                        pass
+                        value = content_src
 
         elif attr == "srcset":
             # Process the HTML5 srcset attribute
@@ -216,11 +216,27 @@ class MainResourceProcessor(HTMLParser):
                 if " " in item:
                     # Source-size pair, like "image.png 2x"
                     src, size = item.split(" ", 1)
-                    src = self._resource_url(src)
-                    srcset.append("{0} {1}".format(src, size))
+                    if self._root:
+                        src = self._resource_url(src)
+                        srcset.append("{0} {1}".format(src, size))
+                    else:
+                        content_src = self._absolute_url(value)
+                        try:
+                            res = self._archive.get_subresource(content_src)
+                            srcset.append(res.to_data_uri())
+                        except (WebArchiveError):
+                            srcset.append(content_src)
                 else:
                     # Source only -- no size specified
-                    srcset.append(item)
+                    if self._root:
+                        srcset.append(self._resource_url(item))
+                    else:
+                        content_src = self._absolute_url(value)
+                        try:
+                            res = self._archive.get_subresource(content_src)
+                            srcset.append(res.to_data_uri())
+                        except (WebArchiveError):
+                            srcset.append(content_src)
 
             value = ", ".join(srcset)
 
