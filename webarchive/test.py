@@ -10,6 +10,7 @@ import tempfile
 import unittest
 
 from . import WebArchive, WebResource
+from .util import is_html_mime_type
 
 
 # Absolute path to this file
@@ -36,6 +37,21 @@ class WebArchiveTest(unittest.TestCase):
         """Clean up the test case."""
 
         pass
+
+    def test_is_html_mime_type(self):
+        """Test the is_html_mime_type() method."""
+
+        # HTML and XHTML both count
+        self.assertTrue(is_html_mime_type("text/html"))
+        self.assertTrue(is_html_mime_type("application/xhtml+xml"))
+
+        # Plain XML does not
+        self.assertFalse(is_html_mime_type("application/xml"))
+        self.assertFalse(is_html_mime_type("text/xml"))
+
+        # These are right out
+        self.assertFalse(is_html_mime_type("text/css"))
+        self.assertFalse(is_html_mime_type("text/javascript"))
 
     def test_webarchive_properties(self):
         """Test WebArchive object properties."""

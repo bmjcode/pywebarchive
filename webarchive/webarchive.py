@@ -9,7 +9,8 @@ from urllib.parse import urlparse, urljoin
 
 from .exceptions import WebArchiveError
 from .webresource import WebResource
-from .util import process_html_resource, process_style_sheet
+from .util import (is_html_mime_type,
+                   process_html_resource, process_style_sheet)
 
 
 __all__ = ["WebArchive"]
@@ -286,7 +287,7 @@ class WebArchive(object):
         """Extract the archive's main resource."""
 
         main_resource = self._main_resource
-        if main_resource.mime_type in ("text/html", "application/xhtml+xml"):
+        if is_html_mime_type(main_resource.mime_type):
             with io.open(output_path, "w",
                          encoding=main_resource.text_encoding) as output:
                 process_html_resource(main_resource, output, subresource_dir)
@@ -315,7 +316,7 @@ class WebArchive(object):
             # Process style sheets to rewrite subresource URLs
             self._extract_style_sheet(res, output_path)
 
-        elif res.mime_type in ("text/html", "application/xhtml+xml"):
+        elif is_html_mime_type(res.mime_type):
             # HTML subresources are weird, but possible
             with io.open(output_path, "w",
                          encoding=res.text_encoding) as output:

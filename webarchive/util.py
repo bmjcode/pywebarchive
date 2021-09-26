@@ -10,7 +10,8 @@ from urllib.parse import urljoin
 from .exceptions import WebArchiveError
 
 
-__all__ = ["process_html_resource", "process_style_sheet"]
+__all__ = ["is_html_mime_type",
+           "process_html_resource", "process_style_sheet"]
 
 
 # Regular expression matching a URL in a style sheet
@@ -199,6 +200,12 @@ class HTMLRewriter(HTMLParser):
     _UNESCAPED_ENTITY_TAGS = ("script", "style")
 
 
+def is_html_mime_type(mime_type):
+    """Return whether the specified MIME type is valid for HTML."""
+
+    return (mime_type in ("text/html", "application/xhtml+xml"))
+
+
 def process_html_resource(res, output, subresource_dir):
     """Process a WebResource containing HTML data.
 
@@ -209,7 +216,7 @@ def process_html_resource(res, output, subresource_dir):
     """
 
     # Make sure this resource is an appropriate content type
-    if not res.mime_type in ("text/html", "application/xhtml+xml"):
+    if not is_html_mime_type(res.mime_type):
         raise TypeError("res must have mime_type == "
                         "'text/html' or 'application/xhtml+xml'")
 
