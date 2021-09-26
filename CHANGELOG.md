@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 * The module version number in `webarchive.__version__`.
+* Implement the `--version` argument in extractor.py.
 ### Changed
 * Further code cleanup.
 

@@ -14,7 +14,8 @@ def main():
     """Extract the .webarchive file specified on the command line."""
 
     parser = optparse.OptionParser(
-        usage="%prog [options] input_path.webarchive [output_path.html]"
+        usage="%prog [options] input_path.webarchive [output_path.html]",
+        version="pywebarchive {0}".format(webarchive.__version__)
     )
 
     opt_group = parser.add_option_group("Extraction mode")
