@@ -201,7 +201,13 @@ class MainResourceProcessor(HTMLParser):
 
 
 def process_main_resource(archive, output, subresource_dir):
-    """Process a webarchive's main WebResource."""
+    """Process a webarchive's main WebResource.
+
+    This rewrites URLs in the HTML code to use a local path, data URI,
+    or absolute URL as appropriate; see WebArchive._get_local_url().
+
+    The modified HTML is written to the specified output stream.
+    """
 
     # Make sure this resource is an appropriate content type
     if not archive.main_resource.mime_type in ("text/html",
@@ -220,6 +226,8 @@ def process_style_sheet(res, subresource_dir=None):
 
     This rewrites url() values to use a local path, data URI, or
     absolute URL as appropriate; see WebArchive._get_local_url().
+
+    Returns a string containing the modified CSS code.
     """
 
     # Make sure this resource is an appropriate content type
