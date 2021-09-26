@@ -6,6 +6,7 @@ import os
 import sys
 import threading
 import queue
+import optparse
 
 from glob import iglob
 
@@ -322,10 +323,17 @@ class ExtractorThread(threading.Thread):
 
 
 if __name__ == "__main__":
-    archives = []
+    parser = optparse.OptionParser(
+        usage="%prog [options] input_path.webarchive [another.webarchive ...]",
+        version="pywebarchive {0}".format(webarchive.__version__)
+    )
+
+    options, args = parser.parse_args()
 
     # Look for archives on the command line
-    for arg in sys.argv[1:]:
+    # If no archives are specified, ExtractorUI will display a browse dialog.
+    archives = []
+    for arg in args:
         archives += iglob(arg)
 
     ui = ExtractorUI(archives)
