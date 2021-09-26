@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 
 from setuptools import setup, find_packages
+from webarchive import __version__
 
 NAME = "pywebarchive"
-VERSION = "0.3.1"
+VERSION = __version__
 AUTHOR = "Benjamin Johnson"
 AUTHOR_EMAIL = "bmjcode@gmail.com"
 DESCRIPTION = "Module for reading Apple's .webarchive files"

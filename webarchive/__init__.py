@@ -24,7 +24,10 @@ from .webarchive import WebArchive
 from .webresource import WebResource
 from .exceptions import WebArchiveError
 
-__all__ = ["WebArchive", "WebResource", "WebArchiveError"]
+__version__ = "0.3.1"
+
+__all__ = ["__version__",
+           "WebArchive", "WebResource", "WebArchiveError"]
 
 
 # This provides a somewhat more pythonic API than creating a WebArchive
