@@ -9,7 +9,7 @@ from urllib.parse import urlparse, urljoin
 
 from .exceptions import WebArchiveError
 from .webresource import WebResource
-from .util import process_main_resource, process_style_sheet
+from .util import process_html_resource, process_style_sheet
 
 
 __all__ = ["WebArchive"]
@@ -279,7 +279,7 @@ class WebArchive(object):
         """
 
         with io.StringIO() as output:
-            process_main_resource(self, output, None)
+            process_html_resource(self, output, None)
             return output.getvalue()
 
     def _extract_main_resource(self, output_path, subresource_dir):
@@ -289,7 +289,7 @@ class WebArchive(object):
                                              "application/xhtml+xml"):
             with io.open(output_path, "w",
                          encoding=self._main_resource.text_encoding) as output:
-                process_main_resource(self, output, subresource_dir)
+                process_html_resource(self, output, subresource_dir)
 
         else:
             # Non-HTML main resources are possible; for example, I have
@@ -339,8 +339,8 @@ class WebArchive(object):
     def _get_local_url(self, subresource_dir, orig_url, base=None):
         """Return a (preferably local) URL for the specified resource.
 
-        This is used by MainResourceProcessor and others to rewrite
-        subresource URLs when extracting a webarchive.
+        This is used to rewrite subresource URLs in HTML and CSS
+        resources when extracting a webarchive.
 
         Relative URLs are resolved from the main resource's URL
         unless an alternative base is specified. For example,

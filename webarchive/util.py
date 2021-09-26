@@ -10,14 +10,14 @@ from urllib.parse import urljoin
 from .exceptions import WebArchiveError
 
 
-__all__ = ["process_main_resource", "process_style_sheet"]
+__all__ = ["process_html_resource", "process_style_sheet"]
 
 
 # Regular expression matching a URL in a style sheet
 RX_STYLE_SHEET_URL = re.compile(r"url\(([^\)]+)\)")
 
 
-class MainResourceProcessor(HTMLParser):
+class HTMLRewriter(HTMLParser):
     """Class to process the main resource in the webarchive.
 
     Most of the work here is rewriting references to external resources,
@@ -39,7 +39,7 @@ class MainResourceProcessor(HTMLParser):
                  "_escape_entities"]
 
     def __init__(self, archive, output, root):
-        """Return a new MainResourceProcessor."""
+        """Return a new HTMLRewriter."""
 
         HTMLParser.__init__(self, convert_charrefs=False)
 
@@ -200,8 +200,8 @@ class MainResourceProcessor(HTMLParser):
     _UNESCAPED_ENTITY_TAGS = ("script", "style")
 
 
-def process_main_resource(archive, output, subresource_dir):
-    """Process a webarchive's main WebResource.
+def process_html_resource(archive, output, subresource_dir):
+    """Process a WebResource containing HTML data.
 
     This rewrites URLs in the HTML code to use a local path, data URI,
     or absolute URL as appropriate; see WebArchive._get_local_url().
@@ -215,10 +215,10 @@ def process_main_resource(archive, output, subresource_dir):
         raise TypeError("res must have mime_type == "
                         "'text/html' or 'application/xhtml+xml'")
 
-    # Feed the content through the MainResourceProcessor to rewrite
+    # Feed the content through the HTMLRewriter to rewrite
     # references to files inside the archive
-    mrp = MainResourceProcessor(archive, output, subresource_dir)
-    mrp.feed(str(archive.main_resource))
+    rewriter = HTMLRewriter(archive, output, subresource_dir)
+    rewriter.feed(str(archive.main_resource))
 
 
 def process_style_sheet(res, subresource_dir=None):
