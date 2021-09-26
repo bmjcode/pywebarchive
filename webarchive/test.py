@@ -1,5 +1,9 @@
 """Test cases for pywebarchive."""
 
+# Some things to consider when writing tests:
+#   - When using io.open() in text mode, you MUST specify an encoding
+#     to avoid a UnicodeDecodeError if your system does not use UTF-8.
+
 import os
 import io
 import tempfile
@@ -143,11 +147,9 @@ class WebArchiveTest(unittest.TestCase):
             self.assertTrue(os.path.isdir(output_dir))
 
             # Assert that the output file contains HTML data
-            # Note: If we don't specify the text encoding, then open() might
-            # raise a UnicodeDecodeError on Windows, causing the test to fail.
             text_encoding = self.archive.main_resource.text_encoding
-            with open(output_path, "r",
-                      encoding=text_encoding) as output_file:
+            with io.open(output_path, "r",
+                         encoding=text_encoding) as output_file:
                 contents = output_file.read()
                 self.assertTrue(contents.startswith("<!DOCTYPE html>"))
 
@@ -169,11 +171,9 @@ class WebArchiveTest(unittest.TestCase):
             self.archive.extract(output_path, single_file=True)
             self.assertTrue(os.path.isfile(output_path))
 
-            # Note: If we don't specify the text encoding, then open() might
-            # raise a UnicodeDecodeError on Windows, causing the test to fail.
             text_encoding = self.archive.main_resource.text_encoding
-            with open(output_path, "r",
-                      encoding=text_encoding) as source:
+            with io.open(output_path, "r",
+                         encoding=text_encoding) as source:
                 content = source.read()
 
             self.assertEqual(self.archive.to_html(), content)
