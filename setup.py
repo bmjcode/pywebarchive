@@ -7,7 +7,7 @@ NAME = "pywebarchive"
 VERSION = __version__
 AUTHOR = "Benjamin Johnson"
 AUTHOR_EMAIL = "bmjcode@gmail.com"
-DESCRIPTION = "Module for reading Apple's .webarchive files"
+DESCRIPTION = "Module for reading Apple's webarchive format"
 
 with open("README.md", "r") as readme:
     LONG_DESCRIPTION = readme.read()

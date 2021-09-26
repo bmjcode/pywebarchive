@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 * Further code cleanup.
 ### Fixed
+* Update the module description in setup.py to match its documentation.
 * Specify a text encoding in `WebArchiveTest.test_webarchive_to_html()` so the test will pass on Windows.
 
 ## [0.3.1] - 2021-09-25
