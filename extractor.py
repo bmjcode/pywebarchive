@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-"""Simple command-line .webarchive extractor."""
+"""Command-line webarchive extractor."""
 
 import os
 import sys

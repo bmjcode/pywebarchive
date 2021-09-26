@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-"""Simple GUI for extracting .webarchive files."""
+"""Graphical webarchive extractor (requires Tkinter)."""
 
 import os
 import sys
