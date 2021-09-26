@@ -35,21 +35,20 @@ class HTMLRewriter(HTMLParser):
     # than simple text processing or regular expressions, given the
     # prevalence of non-standard HTML code.
 
-    __slots__ = ["_archive", "_output", "_root", "_is_xhtml",
-                 "_escape_entities"]
+    __slots__ = ["_archive", "_output", "_subresource_dir",
+                 "_is_xhtml", "_escape_entities"]
 
-    def __init__(self, archive, output, root):
+    def __init__(self, res, output, subresource_dir):
         """Return a new HTMLRewriter."""
 
         HTMLParser.__init__(self, convert_charrefs=False)
 
-        self._archive = archive
+        self._archive = res.archive
         self._output = output
-        self._root = root
+        self._subresource_dir = subresource_dir
 
         # Identify whether this document is XHTML based on the MIME type
-        main_resource = archive.main_resource
-        self._is_xhtml = (main_resource.mime_type == "application/xhtml+xml")
+        self._is_xhtml = (res.mime_type == "application/xhtml+xml")
 
         # Escape entities unless we're in a <script> or <style> block;
         # handle_starttag() and handle_endtag() will toggle this as needed
@@ -113,7 +112,7 @@ class HTMLRewriter(HTMLParser):
     def _resource_url(self, orig_url):
         """Return an appropriate URL for the specified resource."""
 
-        return self._archive._get_local_url(self._root, orig_url)
+        return self._archive._get_local_url(self._subresource_dir, orig_url)
 
     def _build_starttag(self, tag, attrs, is_empty=False):
         """Build an HTML start tag."""
@@ -200,7 +199,7 @@ class HTMLRewriter(HTMLParser):
     _UNESCAPED_ENTITY_TAGS = ("script", "style")
 
 
-def process_html_resource(archive, output, subresource_dir):
+def process_html_resource(res, output, subresource_dir):
     """Process a WebResource containing HTML data.
 
     This rewrites URLs in the HTML code to use a local path, data URI,
@@ -210,15 +209,22 @@ def process_html_resource(archive, output, subresource_dir):
     """
 
     # Make sure this resource is an appropriate content type
-    if not archive.main_resource.mime_type in ("text/html",
-                                               "application/xhtml+xml"):
+    if not res.mime_type in ("text/html", "application/xhtml+xml"):
         raise TypeError("res must have mime_type == "
                         "'text/html' or 'application/xhtml+xml'")
 
-    # Feed the content through the HTMLRewriter to rewrite
-    # references to files inside the archive
-    rewriter = HTMLRewriter(archive, output, subresource_dir)
-    rewriter.feed(str(archive.main_resource))
+    try:
+        # Feed the content through the HTMLRewriter to rewrite
+        # references to files inside the archive
+        rewriter = HTMLRewriter(res, output, subresource_dir)
+        rewriter.feed(str(res))
+
+    except (AttributeError):
+        # This may indicate a non-HTML resource incorrectly served
+        # with a text/html MIME type. Clear the botched attempt and
+        # pass through the original data unmodified
+        output.truncate(0)
+        output.write(str(res))
 
 
 def process_style_sheet(res, subresource_dir=None):

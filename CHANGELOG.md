@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Further code cleanup.
 * Give more descriptive names to various internals.
 ### Fixed
+* Support HTML subresources.
+* Handle non-HTML subresources incorrectly served as `text/html`.
 * Update the module description in `setup.py` to match its documentation.
 * Specify a text encoding in `WebArchiveTest.test_webarchive_to_html()` so the test will pass on Windows.
 * Make `webbrowser` an optional dependency in `extractor.py` to match `extractor-gui.py`.

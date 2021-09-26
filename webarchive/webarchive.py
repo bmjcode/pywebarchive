@@ -279,23 +279,23 @@ class WebArchive(object):
         """
 
         with io.StringIO() as output:
-            process_html_resource(self, output, None)
+            process_html_resource(self.main_resource, output, None)
             return output.getvalue()
 
     def _extract_main_resource(self, output_path, subresource_dir):
         """Extract the archive's main resource."""
 
-        if self._main_resource.mime_type in ("text/html",
-                                             "application/xhtml+xml"):
+        main_resource = self._main_resource
+        if main_resource.mime_type in ("text/html", "application/xhtml+xml"):
             with io.open(output_path, "w",
-                         encoding=self._main_resource.text_encoding) as output:
-                process_html_resource(self, output, subresource_dir)
+                         encoding=main_resource.text_encoding) as output:
+                process_html_resource(main_resource, output, subresource_dir)
 
         else:
             # Non-HTML main resources are possible; for example, I have
             # one from YouTube where the main resource is JavaScript.
             with io.open(output_path, "wb") as output:
-                output.write(bytes(self._main_resource))
+                output.write(bytes(main_resource))
 
     def _extract_style_sheet(self, res, output_path):
         """Extract a style sheet subresource from the archive."""
@@ -314,6 +314,12 @@ class WebArchive(object):
         if res.mime_type == "text/css":
             # Process style sheets to rewrite subresource URLs
             self._extract_style_sheet(res, output_path)
+
+        elif res.mime_type in ("text/html", "application/xhtml+xml"):
+            # HTML subresources are weird, but possible
+            with io.open(output_path, "w",
+                         encoding=res.text_encoding) as output:
+                process_html_resource(res, output, "")
 
         else:
             # Extract other subresources as-is
