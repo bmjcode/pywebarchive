@@ -229,18 +229,12 @@ def process_style_sheet(res, subresource_dir=None):
     content = str(res)
 
     # Find URLs in the stylesheet
-    matches = RX_STYLE_SHEET_URL.findall(content)
-    for match in matches:
+    for match in RX_STYLE_SHEET_URL.findall(content):
         # Remove quote characters, if present, from the URL
         if match.startswith('"') or match.startswith("'"):
             match = match[1:]
         if match.endswith('"') or match.endswith("'"):
             match = match[:-1]
-
-        # Filter out blank URLs; we really shouldn't encounter these
-        # in the first place, but they can show up and cause problems
-        if not match:
-            continue
 
         # This check is necessary because we sometimes get blank URLs
         # here, which can cause all manner of odd behavior
