@@ -10,7 +10,7 @@ from urllib.parse import urlparse, urljoin
 from .exceptions import WebArchiveError
 from .webresource import WebResource
 from .util import (is_html_mime_type,
-                   process_html_resource, process_style_sheet)
+                   process_css_resource, process_html_resource)
 
 
 __all__ = ["WebArchive"]
@@ -306,7 +306,7 @@ class WebArchive(object):
             # Note that URLs in CSS are interpreted relative to the
             # style sheet's path, which in our case is the same path
             # where we extract all our other subresources.
-            content = process_style_sheet(res, "")
+            content = process_css_resource(res, "")
             output.write(content)
 
     def _extract_subresource(self, res, output_path):

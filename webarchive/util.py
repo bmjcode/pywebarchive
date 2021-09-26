@@ -11,7 +11,7 @@ from .exceptions import WebArchiveError
 
 
 __all__ = ["is_html_mime_type",
-           "process_html_resource", "process_style_sheet"]
+           "process_css_resource", "process_html_resource"]
 
 
 # Regular expression matching a URL in a style sheet
@@ -206,35 +206,7 @@ def is_html_mime_type(mime_type):
     return (mime_type in ("text/html", "application/xhtml+xml"))
 
 
-def process_html_resource(res, output, subresource_dir):
-    """Process a WebResource containing HTML data.
-
-    This rewrites URLs in the HTML code to use a local path, data URI,
-    or absolute URL as appropriate; see WebArchive._get_local_url().
-
-    The modified HTML is written to the specified output stream.
-    """
-
-    # Make sure this resource is an appropriate content type
-    if not is_html_mime_type(res.mime_type):
-        raise TypeError("res must have mime_type == "
-                        "'text/html' or 'application/xhtml+xml'")
-
-    try:
-        # Feed the content through the HTMLRewriter to rewrite
-        # references to files inside the archive
-        rewriter = HTMLRewriter(res, output, subresource_dir)
-        rewriter.feed(str(res))
-
-    except (AttributeError):
-        # This may indicate a non-HTML resource incorrectly served
-        # with a text/html MIME type. Clear the botched attempt and
-        # pass through the original data unmodified
-        output.truncate(0)
-        output.write(str(res))
-
-
-def process_style_sheet(res, subresource_dir=None):
+def process_css_resource(res, subresource_dir=None):
     """Process a WebResource containing CSS data.
 
     This rewrites url() values to use a local path, data URI, or
@@ -268,3 +240,31 @@ def process_style_sheet(res, subresource_dir=None):
                 content = content.replace(match, local_url)
 
     return content
+
+
+def process_html_resource(res, output, subresource_dir):
+    """Process a WebResource containing HTML data.
+
+    This rewrites URLs in the HTML code to use a local path, data URI,
+    or absolute URL as appropriate; see WebArchive._get_local_url().
+
+    The modified HTML is written to the specified output stream.
+    """
+
+    # Make sure this resource is an appropriate content type
+    if not is_html_mime_type(res.mime_type):
+        raise TypeError("res must have mime_type == "
+                        "'text/html' or 'application/xhtml+xml'")
+
+    try:
+        # Feed the content through the HTMLRewriter to rewrite
+        # references to files inside the archive
+        rewriter = HTMLRewriter(res, output, subresource_dir)
+        rewriter.feed(str(res))
+
+    except (AttributeError):
+        # This may indicate a non-HTML resource incorrectly served
+        # with a text/html MIME type. Clear the botched attempt and
+        # pass through the original data unmodified
+        output.truncate(0)
+        output.write(str(res))

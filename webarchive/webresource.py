@@ -2,7 +2,7 @@
 
 from base64 import b64encode
 
-from .util import process_style_sheet
+from .util import process_css_resource
 
 
 __all__ = ["WebResource"]
@@ -104,7 +104,7 @@ class WebResource(object):
         elif self.mime_type == "text/css":
             # This is a style sheet.
             # Embed external content recursively using data URIs.
-            content = process_style_sheet(self)
+            content = process_css_resource(self)
             data = bytes(content, encoding=self._text_encoding)
 
         else:
