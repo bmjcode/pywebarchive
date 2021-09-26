@@ -5,7 +5,10 @@
 import os
 import sys
 import optparse
-import webbrowser
+
+# webbrowser is useful, but we can live without it
+try: import webbrowser
+except (ImportError): webbrowser = None
 
 import webarchive
 
@@ -52,7 +55,7 @@ def main():
     archive.extract(output_path,
                     single_file=options.single_file)
 
-    if options.open_page:
+    if options.open_page and webbrowser:
         # Open the extracted page
         webbrowser.open(output_path)
 
