@@ -262,7 +262,7 @@ def process_html_resource(res, output, subresource_dir):
         rewriter = HTMLRewriter(res, output, subresource_dir)
         rewriter.feed(str(res))
 
-    except (AttributeError):
+    except (Exception):
         # This may indicate a non-HTML resource incorrectly served
         # with a text/html MIME type. Clear the botched attempt and
         # pass through the original data unmodified
