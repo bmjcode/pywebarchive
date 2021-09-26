@@ -169,7 +169,11 @@ class WebArchiveTest(unittest.TestCase):
             self.archive.extract(output_path, single_file=True)
             self.assertTrue(os.path.isfile(output_path))
 
-            with open(output_path, "r") as source:
+            # Note: If we don't specify the text encoding, then open() might
+            # raise a UnicodeDecodeError on Windows, causing the test to fail.
+            text_encoding = self.archive.main_resource.text_encoding
+            with open(output_path, "r",
+                      encoding=text_encoding) as source:
                 content = source.read()
 
             self.assertEqual(self.archive.to_html(), content)
