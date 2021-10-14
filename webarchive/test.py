@@ -13,7 +13,7 @@ import tempfile
 import unittest
 
 from . import WebArchive, WebResource
-from .util import is_html_mime_type
+from .util import HTMLRewriter, is_html_mime_type
 
 
 # Absolute path to this file
@@ -196,3 +196,190 @@ class WebArchiveTest(unittest.TestCase):
                 content = source.read()
 
             self.assertEqual(self.archive.to_html(), content)
+
+
+class HTMLRewriterTest(WebArchiveTest):
+    """Test case for the HTMLRewriter class."""
+
+    def setUp(self):
+        """Set up the test case."""
+
+        WebArchiveTest.setUp(self)
+        abs_url = self.archive._get_absolute_url
+
+        # Create an output stream and an HTML rewriter
+        self.output = io.StringIO()
+        self.rewriter = HTMLRewriter(self.archive.main_resource,
+                                     self.output,
+                                     "TestArchive_files")
+
+        # URL of some page not within this archive
+        self.external_url = "https://www.example.com/"
+
+        # Relative URL of some page not within this archive
+        self.rel_external_url = "/wiki/P._G._Wodehouse"
+
+        # URL of some (arbitrary) subresource within this archive
+        self.subresource_url = (
+            "https://upload.wikimedia.org/wikipedia/commons"
+            "/thumb/0/08/Kinewell_Lake_4.jpg/125px-Kinewell_Lake_4.jpg"
+        )
+
+        # Local path for the above subresource
+        self.subresource_local_path = os.path.join(
+            "TestArchive_files",
+            self.archive.get_local_path(self.subresource_url)
+        )
+
+        # Relative URL of another subresource
+        # Also arbitrary, so long as it's on the same server
+        self.rel_subresource_url = (
+            "/static/images/poweredby_mediawiki_88x31.png"
+        )
+
+        # Local path for the above subresource
+        self.rel_subresource_local_path = os.path.join(
+            "TestArchive_files",
+            self.archive.get_local_path(abs_url(self.rel_subresource_url))
+        )
+
+    def tearDown(self):
+        """Clean up the test case."""
+
+        WebArchiveTest.tearDown(self)
+
+    def test_internal_urls(self):
+        """Internal sanity checks on our various sample URLs."""
+
+        abs_url = self.archive._get_absolute_url
+
+        def have_subresource(url):
+            for res in self.archive.subresources:
+                if res.url == url:
+                    return True
+            else:
+                return False
+
+        # Make sure external URLs are actually external
+        for res in self.archive.subresources:
+            self.assertNotEqual(res.url, self.external_url)
+            self.assertNotEqual(res.url, abs_url(self.rel_external_url))
+
+        # Make sure subresource URLs are actually subresources
+        self.assertTrue(have_subresource(self.subresource_url))
+        self.assertTrue(have_subresource(abs_url(self.rel_subresource_url)))
+
+    # Note that for the URL-rewriting tests, we variously reuse the same
+    # resource as a link target, image, script, and style sheet. Since
+    # we're not actually interpreting any HTML code here, just checking
+    # the rewriting logic, this saves us the trouble of generating unique
+    # URLs for each test. In most cases the only property of interest is
+    # whether the URL belongs to one of our archive's subresources or not.
+
+    def test_a_href_absolute(self):
+        """Test <a href="..."> with an absolute URL."""
+
+        in_value = '<a href="{0}">'.format(self.external_url)
+
+        self.rewriter.feed(in_value)
+        self.assertEqual(self.output.getvalue(), in_value)
+
+    def test_a_href_relative(self):
+        """Test <a href="..."> with a relative URL."""
+
+        # Relative URLs should be rewritten as absolute URLs
+        in_value = '<a href="{0}">'.format(self.rel_external_url)
+        out_value = '<a href="{0}">'.format(
+            self.archive._get_absolute_url(self.rel_external_url)
+        )
+        self.assertNotEqual(in_value, out_value)
+
+        self.rewriter.feed(in_value)
+        self.assertEqual(self.output.getvalue(), out_value)
+
+    def test_a_href_subresource(self):
+        """Test <a href="..."> with a subresource URL."""
+
+        # Links should always use absolute URLs even for subresources
+        in_value = '<a href="{0}">'.format(self.subresource_url)
+
+        self.rewriter.feed(in_value)
+        self.assertEqual(self.output.getvalue(), in_value)
+
+    def test_img_src_external(self):
+        """Test <img src="..."> with an external URL."""
+
+        in_value = '<img src="{0}">'.format(self.external_url)
+
+        self.rewriter.feed(in_value)
+        self.assertEqual(self.output.getvalue(), in_value)
+
+    def test_img_src_subresource(self):
+        """Test <img src="..."> with a subresource URL."""
+
+        in_value = '<img src="{0}">'.format(self.subresource_url)
+        out_value = '<img src="{0}">'.format(self.subresource_local_path)
+
+        self.assertNotEqual(in_value, out_value)
+        self.rewriter.feed(in_value)
+        self.assertEqual(self.output.getvalue(), out_value)
+
+    def test_img_src_subresource_rel(self):
+        """Test <img src="..."> with a relative subresource URL."""
+
+        in_value = '<img src="{0}">'.format(self.rel_subresource_url)
+        out_value = '<img src="{0}">'.format(self.rel_subresource_local_path)
+
+        self.assertNotEqual(in_value, out_value)
+        self.rewriter.feed(in_value)
+        self.assertEqual(self.output.getvalue(), out_value)
+
+    def test_link_href_external(self):
+        """Test <link href="..."> with an external URL."""
+
+        in_value = '<link href="{0}">'.format(self.external_url)
+
+        self.rewriter.feed(in_value)
+        self.assertEqual(self.output.getvalue(), in_value)
+
+    def test_link_href_subresource(self):
+        """Test <link href="..."> with a subresource URL."""
+
+        in_value = '<link href="{0}">'.format(self.subresource_url)
+        out_value = '<link href="{0}">'.format(self.subresource_local_path)
+
+        self.assertNotEqual(in_value, out_value)
+        self.rewriter.feed(in_value)
+        self.assertEqual(self.output.getvalue(), out_value)
+
+    def test_link_href_subresource_rel(self):
+        """Test <link href="..."> with a relative subresource URL."""
+
+        in_value = '<link href="{0}">'.format(self.rel_subresource_url)
+        out_value = '<link href="{0}">'.format(self.rel_subresource_local_path)
+
+        self.assertNotEqual(in_value, out_value)
+        self.rewriter.feed(in_value)
+        self.assertEqual(self.output.getvalue(), out_value)
+
+    def test_xhtml_void_elements(self):
+        """Test handling of self-closing XHTML tags like <img />."""
+
+        # Any XHTML doctype will work here
+        doctype = (
+            '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" '
+            '"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'
+        )
+
+        tags = self.rewriter._VOID_ELEMENTS
+        in_tags = "".join(("<{0}>".format(tag) for tag in tags))
+        out_tags = "".join(("<{0} />".format(tag) for tag in tags))
+        in_value = "\n".join((doctype.strip(), in_tags))
+        out_value = "\n".join((doctype.strip(), out_tags))
+
+        # Should be pretty obvious, but...
+        self.assertNotEqual(in_value, out_value)
+
+        self.rewriter.feed(in_value)
+        self.assertTrue(self.rewriter._is_xhtml)
+        self.assertEqual(self.output.getvalue(), out_value)
