@@ -1,6 +1,9 @@
 """Test cases for pywebarchive."""
 
 # Some things to consider when writing tests:
+#   - Unit tests are fully automated and must run non-interactively.
+#     (Earlier versions of pywebarchive did include interactive tests,
+#     but these have since been split into separate scripts.)
 #   - When using io.open() in text mode, you MUST specify an encoding
 #     to avoid a UnicodeDecodeError if your system does not use UTF-8.
 
@@ -193,69 +196,3 @@ class WebArchiveTest(unittest.TestCase):
                 content = source.read()
 
             self.assertEqual(self.archive.to_html(), content)
-
-    def test_extracted_archive_display(self):
-        """Test that an extracted WebArchive displays correctly.
-
-        This means the extracted page should look exactly as it would on
-        the live site. (Of course, it might not be possible to ensure a
-        literally-exact match since Web pages change constantly, and the
-        original page may have been dynamically generated, and so on.)
-
-        This test runs interactively because I don't know of a suitable
-        automated mechanism to use here. Perhaps checking <img src="...">
-        and <a href="..."> attributes in the extracted HTML to ensure they
-        point to the expected resources would be a start?
-
-        This test requires the webbrowser module, to display the extracted
-        page, and Tkinter, to ask the user whether it rendered correctly.
-        If these are unavailable or fail to work, the test will be skipped.
-        """
-
-        try:
-            import tkinter as tk
-            import tkinter.messagebox as mb
-
-            # Import these after Tkinter so we don't waste time loading them
-            # if that import failed
-            import time
-            import webbrowser
-
-            # Create a root window so we can use tkMessageBox, then immediately
-            # withdraw it since we don't need it in its own right
-            root = tk.Tk()
-            root.withdraw()
-
-            with tempfile.TemporaryDirectory() as tmp_dir:
-                output_path = os.path.join(tmp_dir, "Wikipedia.html")
-
-                # Extract the archive, and assert that it succeeded
-                self.archive.extract(output_path)
-                self.assertTrue(os.path.isfile(output_path))
-
-                # Open the converted page
-                webbrowser.open(output_path)
-
-                # Wait for the user's browser to open
-                time.sleep(15)
-
-                # Ask the user to confirm that the page rendered correctly
-                self.assertTrue(mb.askyesno(
-                    "WebArchive Extraction Test",
-                    "pywebarchive just extracted a sample .webarchive file "
-                    "and opened the converted page in your default browser.\n"
-                    "\n"
-                    "If everything went well, you should see the main page "
-                    "of the English Wikipedia, showing a featured article on "
-                    "P. G. Wodehouse.\n"
-                    "\n"
-                    "Did the page display correctly?"
-                ))
-
-        except (ImportError) as err:
-            self.skipTest(err)
-
-        except (tk.TclError, webbrowser.Error) as err:
-            # If an ImportError occurred, tk is likely undefined, so we have
-            # to handle its exceptions in a separate block
-            self.skipTest(err)
