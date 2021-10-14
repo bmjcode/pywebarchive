@@ -103,8 +103,7 @@ class HTMLRewriter(HTMLParser):
     def handle_decl(self, decl):
         """Handle a doctype declaration."""
 
-        # This should probably be on its own line
-        self._output.write("<!{0}>\n".format(decl))
+        self._output.write("<!{0}>".format(decl))
 
         # This caches pre-XHTML5 documents incorrectly served as standard HTML
         if "//DTD XHTML " in decl:
