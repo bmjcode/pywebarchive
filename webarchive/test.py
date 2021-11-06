@@ -220,10 +220,10 @@ class RewriterTest(WebArchiveTest):
         )
 
         # Local path for the above subresource
-        self.subresource_local_path = os.path.join(
+        self.subresource_local_path = "/".join((
             "TestArchive_files",
             self.archive.get_local_path(self.subresource_url)
-        )
+        ))
 
         # Relative URL of another subresource
         # Also arbitrary, so long as it's on the same server
@@ -232,10 +232,10 @@ class RewriterTest(WebArchiveTest):
         )
 
         # Local path for the above subresource
-        self.rel_subresource_local_path = os.path.join(
+        self.rel_subresource_local_path = "/".join((
             "TestArchive_files",
             self.archive.get_local_path(abs_url(self.rel_subresource_url))
-        )
+        ))
 
     def tearDown(self):
         """Clean up the test case."""
