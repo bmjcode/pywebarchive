@@ -24,42 +24,55 @@ class WebResource(object):
     applications should not attempt to create them directly.
     """
 
-    # WebResourceData
-    # WebResourceMIMEType
-    # WebResourceTextEncodingName
-    # WebResourceURL
-    # WebResourceFrameName
-
     __slots__ = ["_archive", "_data", "_mime_type", "_url",
                  "_text_encoding", "_frame_name"]
 
-    def __init__(self, archive, plist_data):
+    def __init__(self, archive, data, mime_type, url,
+                 text_encoding=None, frame_name=None):
         """Return a new WebResource object."""
 
         # The parent WebArchive
         self._archive = archive
 
         # Required attributes
-        self._data = plist_data["WebResourceData"]
-        self._mime_type = plist_data["WebResourceMIMEType"]
-        self._url = plist_data["WebResourceURL"]
+        self._data = data
+        self._mime_type = mime_type
+        self._url = url
+
+        # Optional attributes
+        self._text_encoding = text_encoding
+        self._frame_name = frame_name
+
+    @classmethod
+    def _create_from_plist_data(cls, archive, plist_data):
+        """Create a WebResource object using parsed data from plistlib."""
+
+        # Property names:
+        #   - WebResourceData
+        #   - WebResourceMIMEType
+        #   - WebResourceTextEncodingName
+        #   - WebResourceURL
+        #   - WebResourceFrameName
+
+        data = plist_data["WebResourceData"]
+        mime_type = plist_data["WebResourceMIMEType"]
+        url = plist_data["WebResourceURL"]
+
+        res = WebResource(archive, data, mime_type, url)
 
         # Text encoding (not present for all WebResources)
         if "WebResourceTextEncodingName" in plist_data:
-            self._text_encoding = plist_data["WebResourceTextEncodingName"]
-            self._text_encoding = self._text_encoding.lower()
-        elif self._mime_type.startswith("text/"):
+            res._text_encoding = plist_data["WebResourceTextEncodingName"]
+            res._text_encoding = res._text_encoding.lower()
+        elif res._mime_type.startswith("text/"):
             # Fall back on UTF-8 for text resources
             self._text_encoding = "utf-8"
-        else:
-            # No encoding specified or needed
-            self._text_encoding = None
 
         # Frame name (not present for all WebResources)
         if "WebResourceFrameName" in plist_data:
-            self._frame_name = plist_data["WebResourceFrameName"]
-        else:
-            self._frame_name = None
+            res._frame_name = plist_data["WebResourceFrameName"]
+
+        return res
 
     def __bytes__(self):
         """Return this resource's data as bytes.

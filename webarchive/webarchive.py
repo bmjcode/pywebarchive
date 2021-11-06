@@ -74,12 +74,14 @@ class WebArchive(object):
                 archive = plistlib.load(fp)
 
         # Process the main resource
-        self._main_resource = WebResource(self, archive["WebMainResource"])
+        self._main_resource = WebResource._create_from_plist_data(
+            self, archive["WebMainResource"]
+        )
 
         # Process subresources
         if "WebSubresources" in archive:
             for plist_data in archive["WebSubresources"]:
-                res = WebResource(self, plist_data)
+                res = WebResource._create_from_plist_data(self, plist_data)
                 self._subresources.append(res)
 
                 # Make local paths for extracting each subresource
