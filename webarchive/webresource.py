@@ -36,6 +36,8 @@ class WebResource(object):
 
         # Required attributes
         if isinstance(data, str):
+            if not text_encoding:
+                text_encoding = "utf-8"
             self._data = bytes(data, encoding=text_encoding)
         else:
             self._data = data

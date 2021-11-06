@@ -460,8 +460,7 @@ class CSSRewriterTest(RewriterTest):
         res = WebResource(self.archive,
                           data,
                           "text/css",
-                          self.dummy_css_url,
-                          "utf-8")
+                          self.dummy_css_url)
         return process_css_resource(res, "")
 
     def test_rewrite_absolute(self):
