@@ -13,7 +13,7 @@ import tempfile
 import unittest
 
 from . import WebArchive, WebResource
-from .util import HTMLRewriter, is_html_mime_type
+from .util import HTMLRewriter, is_html_mime_type, process_css_resource
 
 
 # Absolute path to this file
@@ -198,20 +198,14 @@ class WebArchiveTest(unittest.TestCase):
             self.assertEqual(self.archive.to_html(), content)
 
 
-class HTMLRewriterTest(WebArchiveTest):
-    """Test case for the HTMLRewriter class."""
+class RewriterTest(WebArchiveTest):
+    """Base class for HTML and CSS rewriter tests."""
 
     def setUp(self):
         """Set up the test case."""
 
         WebArchiveTest.setUp(self)
         abs_url = self.archive._get_absolute_url
-
-        # Create an output stream and an HTML rewriter
-        self.output = io.StringIO()
-        self.rewriter = HTMLRewriter(self.archive.main_resource,
-                                     self.output,
-                                     "TestArchive_files")
 
         # URL of some page not within this archive
         self.external_url = "https://www.example.com/"
@@ -268,6 +262,27 @@ class HTMLRewriterTest(WebArchiveTest):
         # Make sure subresource URLs are actually subresources
         self.assertTrue(have_subresource(self.subresource_url))
         self.assertTrue(have_subresource(abs_url(self.rel_subresource_url)))
+
+
+class HTMLRewriterTest(RewriterTest):
+    """Test case for the HTMLRewriter class."""
+
+    def setUp(self):
+        """Set up the test case."""
+
+        RewriterTest.setUp(self)
+        abs_url = self.archive._get_absolute_url
+
+        # Create an output stream and HTML rewriter
+        self.output = io.StringIO()
+        self.rewriter = HTMLRewriter(self.archive.main_resource,
+                                     self.output,
+                                     "TestArchive_files")
+
+    def tearDown(self):
+        """Clean up the test case."""
+
+        RewriterTest.tearDown(self)
 
     # Note that for the URL-rewriting tests, we variously reuse the same
     # resource as a link target, image, script, and style sheet. Since
@@ -405,3 +420,57 @@ class HTMLRewriterTest(WebArchiveTest):
         self.rewriter.feed(in_value)
         self.assertTrue(self.rewriter._is_xhtml)
         self.assertEqual(self.output.getvalue(), out_value)
+
+
+class CSSRewriterTest(RewriterTest):
+    """Test case for CSS-rewriting rules."""
+
+    def setUp(self):
+        """Set up the test case."""
+
+        RewriterTest.setUp(self)
+
+        # URL for the dummy style sheet used by rewrite()
+        # This doesn't actually have to exist.
+        self.dummy_css_url = "https://www.example.com/style.css"
+
+        # Override local paths that should now be relative to the style sheet,
+        # not the main resource
+        self.subresource_local_path = (
+            self.archive.get_local_path(self.subresource_url)
+        )
+
+    def tearDown(self):
+        """Clean up the test case."""
+
+        RewriterTest.tearDown(self)
+
+    def rewrite(self, data):
+        """Rewrite the specified CSS data."""
+
+        res = WebResource(self.archive,
+                          data,
+                          "text/css",
+                          self.dummy_css_url,
+                          "utf-8")
+        return process_css_resource(res, "")
+
+    def test_rewrite_absolute(self):
+        """Test absolute URL rewriting."""
+
+        template = 'html {{ background: url({0}); }}'
+        in_value = template.format(self.external_url)
+
+        output = self.rewrite(in_value)
+        self.assertEqual(output, in_value)
+
+    def test_rewrite_subresource(self):
+        """Test subresource URL rewriting."""
+
+        template = 'html {{ background: url({0}); }}'
+        in_value = template.format(self.subresource_url)
+        out_value = template.format(self.subresource_local_path)
+
+        self.assertNotEqual(in_value, out_value)
+        output = self.rewrite(in_value)
+        self.assertEqual(output, out_value)
