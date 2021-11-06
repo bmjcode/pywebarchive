@@ -2,7 +2,7 @@
 
 from base64 import b64encode
 
-from .util import process_css_resource
+from . import util
 
 
 __all__ = ["WebResource"]
@@ -35,7 +35,10 @@ class WebResource(object):
         self._archive = archive
 
         # Required attributes
-        self._data = data
+        if isinstance(data, str):
+            self._data = bytes(data, encoding=text_encoding)
+        else:
+            self._data = data
         self._mime_type = mime_type
         self._url = url
 
@@ -66,7 +69,7 @@ class WebResource(object):
             res._text_encoding = res._text_encoding.lower()
         elif res._mime_type.startswith("text/"):
             # Fall back on UTF-8 for text resources
-            self._text_encoding = "utf-8"
+            res._text_encoding = "utf-8"
 
         # Frame name (not present for all WebResources)
         if "WebResourceFrameName" in plist_data:
@@ -117,7 +120,7 @@ class WebResource(object):
         elif self.mime_type == "text/css":
             # This is a style sheet.
             # Embed external content recursively using data URIs.
-            content = process_css_resource(self)
+            content = util.process_css_resource(self)
             data = bytes(content, encoding=self._text_encoding)
 
         else:
