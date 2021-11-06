@@ -12,10 +12,10 @@ Webarchive Extractor converts webarchives to standard HTML documents. It allows 
 ### Downloads
 File | Size | Description
 ---- | ---- | -----------
-[Webarchive.Extractor.exe](https://github.com/bmjcode/pywebarchive/releases/download/v0.3.2/Webarchive.Extractor.exe) | 7.4 MB | Windows (32-bit, standalone)
-[Webarchive.Extractor.x64.exe](https://github.com/bmjcode/pywebarchive/releases/download/v0.3.2/Webarchive.Extractor.x64.exe) | 8.1 MB | Windows (64-bit, standalone)
-[pywebarchive-0.3.2.zip](https://github.com/bmjcode/pywebarchive/archive/refs/tags/v0.3.2.zip) | | source code (zip)
-[pywebarchive-0.3.2.tar.gz](https://github.com/bmjcode/pywebarchive/archive/refs/tags/v0.3.2.tar.gz) | | source code (tar.gz)
+[Webarchive.Extractor.exe](https://github.com/bmjcode/pywebarchive/releases/download/v0.3.3/Webarchive.Extractor.exe) | 7.4 MB | Windows (32-bit, standalone)
+[Webarchive.Extractor.x64.exe](https://github.com/bmjcode/pywebarchive/releases/download/v0.3.3/Webarchive.Extractor.x64.exe) | 8.1 MB | Windows (64-bit, standalone)
+[pywebarchive-0.3.3.zip](https://github.com/bmjcode/pywebarchive/archive/refs/tags/v0.3.3.zip) | | source code (zip)
+[pywebarchive-0.3.3.tar.gz](https://github.com/bmjcode/pywebarchive/archive/refs/tags/v0.3.3.tar.gz) | | source code (tar.gz)
 
 ### Notes
 The Windows version runs on Windows 7 and higher. It is a standalone executable -- no installation required.
