@@ -362,6 +362,28 @@ class HTMLRewriterTest(WebArchiveTest):
         self.rewriter.feed(in_value)
         self.assertEqual(self.output.getvalue(), out_value)
 
+    def test_style_subresource(self):
+        """Test inline <style> with a subresource URL."""
+
+        template = '<style>html {{ background: url({0}); }}</style>'
+        in_value = template.format(self.subresource_url)
+        out_value = template.format(self.subresource_local_path)
+
+        self.assertNotEqual(in_value, out_value)
+        self.rewriter.feed(in_value)
+        self.assertEqual(self.output.getvalue(), out_value)
+
+    def test_style_subresource_rel(self):
+        """Test inline <style> with a relative subresource URL."""
+
+        template = '<style>html {{ background: url({0}); }}</style>'
+        in_value = template.format(self.rel_subresource_url)
+        out_value = template.format(self.rel_subresource_local_path)
+
+        self.assertNotEqual(in_value, out_value)
+        self.rewriter.feed(in_value)
+        self.assertEqual(self.output.getvalue(), out_value)
+
     def test_xhtml_void_elements(self):
         """Test handling of self-closing XHTML tags like <img />."""
 

@@ -7,6 +7,7 @@ import html
 from html.parser import HTMLParser
 from urllib.parse import urljoin
 
+from . import webresource
 from .exceptions import WebArchiveError
 
 
@@ -36,14 +37,16 @@ class HTMLRewriter(HTMLParser):
     # than simple text processing or regular expressions, given the
     # prevalence of non-standard HTML code.
 
-    __slots__ = ["_archive", "_output", "_subresource_dir",
-                 "_is_xhtml", "_escape_entities"]
+    __slots__ = ["_res", "_archive", "_output", "_subresource_dir",
+                 "_is_xhtml", "_escape_entities",
+                 "_style_buffer", "_in_style_block"]
 
     def __init__(self, res, output, subresource_dir):
         """Return a new HTMLRewriter."""
 
         HTMLParser.__init__(self, convert_charrefs=False)
 
+        self._res = res
         self._archive = res.archive
         self._output = output
         self._subresource_dir = subresource_dir
@@ -55,11 +58,18 @@ class HTMLRewriter(HTMLParser):
         # handle_starttag() and handle_endtag() will toggle this as needed
         self._escape_entities = True
 
+        # Buffer for processing inline CSS code
+        self._style_buffer = ""
+        self._in_style_block = False
+
     def handle_starttag(self, tag, attrs):
         """Handle a start tag."""
 
         if tag in self._UNESCAPED_ENTITY_TAGS:
             self._escape_entities = False
+
+        if tag == "style":
+            self._in_style_block = True
 
         self._output.write(self._build_starttag(tag, attrs))
 
@@ -74,12 +84,20 @@ class HTMLRewriter(HTMLParser):
         if tag in self._UNESCAPED_ENTITY_TAGS:
             self._escape_entities = True
 
+        if tag == "style":
+            self._in_style_block = False
+            self._flush_style_buffer()
+
         self._output.write("</{0}>".format(tag))
 
     def handle_data(self, data):
         """Handle arbitrary data."""
 
-        if self._escape_entities:
+        if self._in_style_block:
+            # Buffer inline CSS so we can rewrite URLs; this buffer will be
+            # flushed when we close the tag
+            self._style_buffer = "".join((self._style_buffer, data))
+        elif self._escape_entities:
             self._output.write(html.escape(data, False))
         else:
             self._output.write(data)
@@ -140,6 +158,20 @@ class HTMLRewriter(HTMLParser):
             tag_data.insert(0, "<!-- Processed by pywebarchive -->\n")
 
         return "".join(tag_data)
+
+    def _flush_style_buffer(self):
+        """Write out buffered inline CSS code."""
+
+        # Create a dummy WebResource to feed to process_css_resource()
+        css_res = webresource.WebResource(self._archive,
+                                          self._style_buffer,
+                                          "text/css",
+                                          self._res.url,
+                                          self._res.text_encoding)
+
+        content = process_css_resource(css_res, self._subresource_dir)
+        self._output.write(content)
+        self._style_buffer = ""
 
     def _process_attr_value(self, tag, attr, value):
         """Process the value of a tag's attribute."""
