@@ -294,7 +294,8 @@ class HTMLRewriterTest(RewriterTest):
     def test_a_href_absolute(self):
         """Test <a href="..."> with an absolute URL."""
 
-        in_value = '<a href="{0}">'.format(self.external_url)
+        template = '<a href="{0}">'
+        in_value = template.format(self.external_url)
 
         self.rewriter.feed(in_value)
         self.assertEqual(self.output.getvalue(), in_value)
@@ -303,8 +304,9 @@ class HTMLRewriterTest(RewriterTest):
         """Test <a href="..."> with a relative URL."""
 
         # Relative URLs should be rewritten as absolute URLs
-        in_value = '<a href="{0}">'.format(self.rel_external_url)
-        out_value = '<a href="{0}">'.format(
+        template = '<a href="{0}">'
+        in_value = template.format(self.rel_external_url)
+        out_value = template.format(
             self.archive._get_absolute_url(self.rel_external_url)
         )
         self.assertNotEqual(in_value, out_value)
@@ -316,7 +318,8 @@ class HTMLRewriterTest(RewriterTest):
         """Test <a href="..."> with a subresource URL."""
 
         # Links should always use absolute URLs even for subresources
-        in_value = '<a href="{0}">'.format(self.subresource_url)
+        template = '<a href="{0}">'
+        in_value = template.format(self.subresource_url)
 
         self.rewriter.feed(in_value)
         self.assertEqual(self.output.getvalue(), in_value)
@@ -324,7 +327,8 @@ class HTMLRewriterTest(RewriterTest):
     def test_img_src_external(self):
         """Test <img src="..."> with an external URL."""
 
-        in_value = '<img src="{0}">'.format(self.external_url)
+        template = '<img src="{0}">'
+        in_value = template.format(self.external_url)
 
         self.rewriter.feed(in_value)
         self.assertEqual(self.output.getvalue(), in_value)
@@ -332,27 +336,30 @@ class HTMLRewriterTest(RewriterTest):
     def test_img_src_subresource(self):
         """Test <img src="..."> with a subresource URL."""
 
-        in_value = '<img src="{0}">'.format(self.subresource_url)
-        out_value = '<img src="{0}">'.format(self.subresource_local_path)
-
+        template = '<img src="{0}">'
+        in_value = template.format(self.subresource_url)
+        out_value = template.format(self.subresource_local_path)
         self.assertNotEqual(in_value, out_value)
+
         self.rewriter.feed(in_value)
         self.assertEqual(self.output.getvalue(), out_value)
 
     def test_img_src_subresource_rel(self):
         """Test <img src="..."> with a relative subresource URL."""
 
-        in_value = '<img src="{0}">'.format(self.rel_subresource_url)
-        out_value = '<img src="{0}">'.format(self.rel_subresource_local_path)
-
+        template = '<img src="{0}">'
+        in_value = template.format(self.rel_subresource_url)
+        out_value = template.format(self.rel_subresource_local_path)
         self.assertNotEqual(in_value, out_value)
+
         self.rewriter.feed(in_value)
         self.assertEqual(self.output.getvalue(), out_value)
 
     def test_link_href_external(self):
         """Test <link href="..."> with an external URL."""
 
-        in_value = '<link href="{0}">'.format(self.external_url)
+        template = '<link href="{0}">'
+        in_value = template.format(self.external_url)
 
         self.rewriter.feed(in_value)
         self.assertEqual(self.output.getvalue(), in_value)
@@ -360,20 +367,22 @@ class HTMLRewriterTest(RewriterTest):
     def test_link_href_subresource(self):
         """Test <link href="..."> with a subresource URL."""
 
-        in_value = '<link href="{0}">'.format(self.subresource_url)
-        out_value = '<link href="{0}">'.format(self.subresource_local_path)
-
+        template = '<link href="{0}">'
+        in_value = template.format(self.subresource_url)
+        out_value = template.format(self.subresource_local_path)
         self.assertNotEqual(in_value, out_value)
+
         self.rewriter.feed(in_value)
         self.assertEqual(self.output.getvalue(), out_value)
 
     def test_link_href_subresource_rel(self):
         """Test <link href="..."> with a relative subresource URL."""
 
-        in_value = '<link href="{0}">'.format(self.rel_subresource_url)
-        out_value = '<link href="{0}">'.format(self.rel_subresource_local_path)
-
+        template = '<link href="{0}">'
+        in_value = template.format(self.rel_subresource_url)
+        out_value = template.format(self.rel_subresource_local_path)
         self.assertNotEqual(in_value, out_value)
+
         self.rewriter.feed(in_value)
         self.assertEqual(self.output.getvalue(), out_value)
 
@@ -383,8 +392,8 @@ class HTMLRewriterTest(RewriterTest):
         template = '<style>html {{ background: url({0}); }}</style>'
         in_value = template.format(self.subresource_url)
         out_value = template.format(self.subresource_local_path)
-
         self.assertNotEqual(in_value, out_value)
+
         self.rewriter.feed(in_value)
         self.assertEqual(self.output.getvalue(), out_value)
 
@@ -394,8 +403,8 @@ class HTMLRewriterTest(RewriterTest):
         template = '<style>html {{ background: url({0}); }}</style>'
         in_value = template.format(self.rel_subresource_url)
         out_value = template.format(self.rel_subresource_local_path)
-
         self.assertNotEqual(in_value, out_value)
+
         self.rewriter.feed(in_value)
         self.assertEqual(self.output.getvalue(), out_value)
 
@@ -470,7 +479,7 @@ class CSSRewriterTest(RewriterTest):
         template = 'html {{ background: url({0}); }}'
         in_value = template.format(self.subresource_url)
         out_value = template.format(self.subresource_local_path)
-
         self.assertNotEqual(in_value, out_value)
+
         output = self.rewrite(in_value)
         self.assertEqual(output, out_value)
