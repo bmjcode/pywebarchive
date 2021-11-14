@@ -63,7 +63,7 @@ class WebResource(object):
         mime_type = plist_data["WebResourceMIMEType"]
         url = plist_data["WebResourceURL"]
 
-        res = WebResource(archive, data, mime_type, url)
+        res = cls(archive, data, mime_type, url)
 
         # Text encoding (not present for all WebResources)
         if "WebResourceTextEncodingName" in plist_data:
