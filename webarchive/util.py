@@ -11,7 +11,7 @@ from . import webresource
 from .exceptions import WebArchiveError
 
 
-__all__ = ["is_html_mime_type",
+__all__ = ["is_html_mime_type", "is_text_mime_type",
            "process_css_resource", "process_html_resource"]
 
 
@@ -235,6 +235,12 @@ def is_html_mime_type(mime_type):
     """Return whether the specified MIME type is valid for HTML."""
 
     return (mime_type in ("text/html", "application/xhtml+xml"))
+
+
+def is_text_mime_type(mime_type):
+    """Return whether the specified MIME type is valid for text."""
+
+    return (mime_type.startswith("text/") or is_html_mime_type(mime_type))
 
 
 def process_css_resource(res, subresource_dir=None):

@@ -3,6 +3,7 @@
 from base64 import b64encode
 
 from . import util
+from .exceptions import WebArchiveError
 
 
 __all__ = ["WebResource"]
@@ -34,13 +35,24 @@ class WebResource(object):
         # The parent WebArchive
         self._archive = archive
 
-        # Required attributes
+        # Ensure an encoding is always specified for text resources
+        is_text = util.is_text_mime_type(mime_type)
+        if is_text and not text_encoding:
+            text_encoding = "utf-8"
+
+        # This resource's data
         if isinstance(data, str):
-            if not text_encoding:
-                text_encoding = "utf-8"
-            self._data = bytes(data, encoding=text_encoding)
+            if is_text:
+                self._data = bytes(data, encoding=text_encoding)
+            else:
+                raise WebArchiveError(
+                    "MIME type '{0}' does not support text data"
+                    .format(mime_type)
+                )
         else:
             self._data = data
+
+        # Other required attributes
         self._mime_type = mime_type
         self._url = url
 
@@ -98,7 +110,7 @@ class WebResource(object):
         in the encoding specified by this resource's text_encoding property.
         """
 
-        if self.mime_type.startswith("text/"):
+        if util.is_text_mime_type(self._mime_type):
             return str(self._data, encoding=self._text_encoding)
 
         else:
