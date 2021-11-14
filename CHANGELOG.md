@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 * Further clean up internal APIs.
 ### Fixed
-* Ensure a text encoding is always specified when creating a text `WebResource`.
+* Ensure an encoding is always specified when creating a text `WebResource`.
 
 ## [0.3.3] - 2021-11-05
 ### Added
