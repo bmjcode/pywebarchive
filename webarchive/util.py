@@ -38,8 +38,7 @@ class HTMLRewriter(HTMLParser):
     # prevalence of non-standard HTML code.
 
     __slots__ = ["_res", "_archive", "_output", "_subresource_dir",
-                 "_is_xhtml", "_escape_entities",
-                 "_style_buffer", "_in_style_block"]
+                 "_is_xhtml", "_style_buffer", "_in_style_block"]
 
     def __init__(self, res, output, subresource_dir):
         """Return a new HTMLRewriter."""
@@ -54,19 +53,12 @@ class HTMLRewriter(HTMLParser):
         # Identify whether this document is XHTML based on the MIME type
         self._is_xhtml = (res.mime_type == "application/xhtml+xml")
 
-        # Escape entities unless we're in a <script> or <style> block;
-        # handle_starttag() and handle_endtag() will toggle this as needed
-        self._escape_entities = True
-
         # Buffer for processing inline CSS code
         self._style_buffer = ""
         self._in_style_block = False
 
     def handle_starttag(self, tag, attrs):
         """Handle a start tag."""
-
-        if tag in self._UNESCAPED_ENTITY_TAGS:
-            self._escape_entities = False
 
         if tag == "style":
             self._in_style_block = True
@@ -81,9 +73,6 @@ class HTMLRewriter(HTMLParser):
     def handle_endtag(self, tag):
         """Handle an end tag."""
 
-        if tag in self._UNESCAPED_ENTITY_TAGS:
-            self._escape_entities = True
-
         if tag == "style":
             self._in_style_block = False
             self._flush_style_buffer()
@@ -97,8 +86,6 @@ class HTMLRewriter(HTMLParser):
             # Buffer inline CSS so we can rewrite URLs; this buffer will be
             # flushed when we close the tag
             self._style_buffer = "".join((self._style_buffer, data))
-        elif self._escape_entities:
-            self._output.write(html.escape(data, False))
         else:
             self._output.write(data)
 
@@ -226,9 +213,6 @@ class HTMLRewriter(HTMLParser):
         # Obsolete tags
         "command", "keygen", "menuitem"
     )
-
-    # Tags that can include unescaped HTML entities
-    _UNESCAPED_ENTITY_TAGS = ("script", "style")
 
 
 def is_html_mime_type(mime_type):
