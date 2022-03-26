@@ -59,6 +59,7 @@ class WebArchive(object):
     def __exit__(self, exc_type, exc_value, traceback):
         """Exit the runtime context."""
 
+        self.close()
         return False  # process any raised exception normally
 
     def close(self):
