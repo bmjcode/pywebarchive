@@ -22,7 +22,7 @@ The Windows version runs on Windows 7 and higher. It is a standalone executable 
 
 The pywebarchive source code includes both graphical ([extractor-gui.py](extractor-gui.py)) and command-line ([extractor.py](extractor.py)) versions of Webarchive Extractor. The graphical version requires Tkinter; the command-line version should run on any system.
 
-These download links are for the most recent stable release. If you're reading this on GitHub, be aware that you may be looking at a newer version of the code than what's linked here.
+The download links above are for the most recent stable release. If you're reading this on GitHub, be aware that you may be looking at a newer version of the code than what's linked here.
 
 
 ## The `webarchive` module
