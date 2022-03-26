@@ -26,19 +26,16 @@ from .exceptions import WebArchiveError
 
 __version__ = "0.3.3"
 
-__all__ = ["__version__",
-           "WebArchive", "WebResource", "WebArchiveError"]
+__all__ = [
+    "__version__",
+    "WebArchive",
+    "WebResource",
+    "WebArchiveError",
+    # Earlier versions of pywebarchive omitted this to avoid clobbering the
+    # builtin of the same name, but it's better to expose this so pydoc will
+    # see it than to try protecting people who don't check if the modules
+    # they are using are "import *"-safe.
+    "open",
+]
 
-
-# This provides a somewhat more pythonic API than creating a WebArchive
-# object directly.
-#
-# N.B. Do not export this in __all__, since we don't want to clobber
-# the builtin of the same name.
-def open(path):
-    """Open the specified .webarchive file for reading.
-
-    Returns a WebArchive object.
-    """
-
-    return WebArchive(path)
+open = WebArchive._open

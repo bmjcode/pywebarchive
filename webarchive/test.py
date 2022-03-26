@@ -12,7 +12,7 @@ import io
 import tempfile
 import unittest
 
-from . import WebArchive, WebResource
+from . import open as open_webarchive, WebArchive, WebResource
 from .util import HTMLRewriter, is_html_mime_type, process_css_resource
 
 
@@ -34,7 +34,7 @@ class WebArchiveTest(unittest.TestCase):
         """Set up the test case."""
 
         # Load our sample archive
-        self.archive = WebArchive(SAMPLE_ARCHIVE_PATH)
+        self.archive = open_webarchive(SAMPLE_ARCHIVE_PATH)
 
     def tearDown(self):
         """Clean up the test case."""
@@ -211,7 +211,7 @@ class WebArchiveTest(unittest.TestCase):
         self.assertIsNone(self.archive.parent)
 
         # Create an empty subframe archive
-        subframe_archive = WebArchive(parent=self.archive)
+        subframe_archive = WebArchive(self.archive)
 
         # Assert that its parent property is set to the right value
         self.assertIsNotNone(subframe_archive._parent)

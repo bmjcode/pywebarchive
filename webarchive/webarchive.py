@@ -28,7 +28,7 @@ class WebArchive(object):
                  "_main_resource", "_subresources", "_subframe_archives",
                  "_local_paths"]
 
-    def __init__(self, path_or_stream=None, parent=None):
+    def __init__(self, parent=None):
         """Return a new WebArchive object."""
 
         self._parent = parent
@@ -45,24 +45,10 @@ class WebArchive(object):
         # can be extracted independently of its parent archive.
         self._local_paths = {}
 
-        if path_or_stream:
-            # Read data from the archive
-            if isinstance(path_or_stream, io.IOBase):
-                # The constructor argument is a stream
-                archive_data = plistlib.load(path_or_stream)
+    def __del__(self):
+        """Clean up before deleting this object."""
 
-            elif (isinstance(path_or_stream, str)
-                  and os.path.isfile(path_or_stream)):
-                # Assume the constructor argument is a file path
-                with io.open(path_or_stream, "rb") as fp:
-                    archive_data = plistlib.load(fp)
-
-            else:
-                raise WebArchiveError(
-                    "path_or_stream must be a valid file path or stream"
-                )
-
-            self._populate_from_plist_data(archive_data)
+        self.close()
 
     def __enter__(self):
         """Enter the runtime context."""
@@ -78,10 +64,42 @@ class WebArchive(object):
     def _create_from_plist_data(cls, archive_data, parent=None):
         """Create a WebArchive object using parsed data from plistlib."""
 
-        res = cls(parent=parent)
+        res = cls(parent)
         res._populate_from_plist_data(archive_data)
 
         return res
+
+    @classmethod
+    def _open(cls, path, mode="r"):
+        """Open the specified webarchive file."""
+
+        # Note this is the actual function exported as webarchive.open().
+        # It uses a private name here to hide its real location from pydoc,
+        # since that is an implementation detail that could change, but be
+        # aware that any changes made here will be very public indeed.
+
+        archive = cls()
+
+        if isinstance(mode, str):
+            if mode == "r":
+                # Read this webarchive
+                with io.open(path, "rb") as stream:
+                    archive._populate_from_stream(stream)
+            else:
+                raise WebArchiveException(
+                    "only mode 'r' (reading) is currently supported"
+                )
+        else:
+            raise WebArchiveError("mode must be a str")
+
+        return archive
+
+    def close(self):
+        """Close this webarchive."""
+
+        # This currently does nothing, but is provided for semantic
+        # compatibility with io.open().
+        pass
 
     def extract(self, output_path, single_file=False,
                 *, before_cb=None, after_cb=None, canceled_cb=None):
@@ -191,9 +209,9 @@ class WebArchive(object):
                 if canceled_cb and canceled_cb():
                     return
 
-                sf_main_res = subframe_archive._main_resource
+                sf_main = subframe_archive._main_resource
                 sf_local_path = os.path.join(subresource_dir,
-                                             self._local_paths[sf_main_res.url])
+                                             self._local_paths[sf_main.url])
 
                 subframe_archive.extract(sf_local_path,
                                          single_file,
@@ -457,7 +475,7 @@ class WebArchive(object):
                 self._local_paths[res.url] = self._make_local_path(res)
 
     def _populate_from_plist_data(self, archive_data):
-        """Populate a WebArchive using parsed data from plistlib."""
+        """Populate this webarchive using parsed data from plistlib."""
 
         # Property names:
         # - WebMainResource
@@ -483,6 +501,16 @@ class WebArchive(object):
 
         # Make local paths for subresources
         self._make_local_paths()
+
+    def _populate_from_stream(self, stream):
+        """Populate this webarchive from the specified stream."""
+
+        if isinstance(stream, io.IOBase):
+            archive_data = plistlib.load(stream)
+            self._populate_from_plist_data(archive_data)
+
+        else:
+            raise WebArchiveError("invalid stream type")
 
     @property
     def main_resource(self):
