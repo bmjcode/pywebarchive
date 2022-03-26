@@ -285,23 +285,24 @@ class ExtractorThread(threading.Thread):
                 if self._canceler.is_set():
                     break
 
-                archive = webarchive.open(archive_path)
-                archive_base = os.path.basename(archive_path)
+                with webarchive.open(archive_path) as archive:
+                    archive_base = os.path.basename(archive_path)
 
-                # Pass some information about the archive back to the UI
-                self._queue.put(("archive start", archive_base))
-                self._queue.put(("resource count", archive.resource_count()))
+                    # Pass some information about the archive back to the UI
+                    self._queue.put(("archive start", archive_base))
+                    self._queue.put(("resource count",
+                                     archive.resource_count()))
 
-                # Derive the output path from the archive path
-                base, ext = os.path.splitext(archive_path)
-                output_path = "{0}.html".format(base)
+                    # Derive the output path from the archive path
+                    base, ext = os.path.splitext(archive_path)
+                    output_path = "{0}.html".format(base)
 
-                # Extract the archive
-                archive.extract(output_path,
-                                before_cb=self._before_cb,
-                                after_cb=self._after_cb,
-                                canceled_cb=self._canceler.is_set)
-                self._queue.put(("archive done", archive_base))
+                    # Extract the archive
+                    archive.extract(output_path,
+                                    before_cb=self._before_cb,
+                                    after_cb=self._after_cb,
+                                    canceled_cb=self._canceler.is_set)
+                    self._queue.put(("archive done", archive_base))
 
             # Signal we are done processing
             self._queue.put(None)

@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
+* Context manager (`with` statement) support in the `WebArchive` class.
 * The `WebArchive.parent` property.
 ### Changed
 * Further clean up internal APIs.

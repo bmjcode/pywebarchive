@@ -51,9 +51,9 @@ def main():
         sys.exit(1)
 
     # Extract the archive
-    archive = webarchive.open(archive_path)
-    archive.extract(output_path,
-                    single_file=options.single_file)
+    with webarchive.open(archive_path) as archive:
+        archive.extract(output_path,
+                        single_file=options.single_file)
 
     if options.open_page and webbrowser:
         # Open the extracted page

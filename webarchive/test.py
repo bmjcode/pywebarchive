@@ -41,6 +41,13 @@ class WebArchiveTest(unittest.TestCase):
 
         pass
 
+    def test_webarchive_context_manager(self):
+        """Test the WebArchive's class context manager."""
+
+        # The actual test is simply that this does not fail
+        with WebArchive(SAMPLE_ARCHIVE_PATH) as archive:
+            self.assertIsInstance(archive, WebArchive)
+
     def test_is_html_mime_type(self):
         """Test the is_html_mime_type() method."""
 

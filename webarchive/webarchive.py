@@ -64,6 +64,16 @@ class WebArchive(object):
 
             self._populate_from_plist_data(archive_data)
 
+    def __enter__(self):
+        """Enter the runtime context."""
+
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        """Exit the runtime context."""
+
+        return False  # process any raised exception normally
+
     @classmethod
     def _create_from_plist_data(cls, archive_data, parent=None):
         """Create a WebArchive object using parsed data from plistlib."""
