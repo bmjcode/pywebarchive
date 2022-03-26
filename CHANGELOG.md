@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Context manager (`with` statement) support in the `WebArchive` class.
 * The `WebArchive.close()` method.
 * The `WebArchive.parent` property.
-* Support for the `mode` argument in `webarchive.open()` (though only read mode remains supported).
+* Support for the `mode` argument in `webarchive.open()` (though only read mode remains implemented).
 ### Changed
 * Further clean up internal APIs.
 ### Fixed
