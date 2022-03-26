@@ -10,7 +10,7 @@ __all__ = ["WebResource"]
 
 
 class WebResource(object):
-    """An individual resource within a WebArchive.
+    """An individual resource within a webarchive.
 
     A WebResource stores a particular media file's content, as well as
     metadata such as its original URL, MIME type, and text encoding (if

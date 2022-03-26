@@ -17,7 +17,8 @@ __all__ = ["WebArchive"]
 
 
 class WebArchive(object):
-    """Class representing the contents of a .webarchive file.
+    """A webarchive. You can use this class to extract it or to directly
+    examine its individual resources.
 
     You should use webarchive.open() to access a webarchive rather than
     instantiate this class directly, since the constructor arguments may
@@ -489,7 +490,10 @@ class WebArchive(object):
 
     @classmethod
     def _open(cls, path, mode="r"):
-        """Open the specified webarchive file."""
+        """Open the specified webarchive file.
+
+        Only mode 'r' (reading) is currently supported.
+        """
 
         # Note this is the actual function exported as webarchive.open().
         # It uses a private name here to hide its real location from pydoc,

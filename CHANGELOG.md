@@ -11,7 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * The `WebArchive.parent` property.
 * Support for the `mode` argument in `webarchive.open()` (though only read mode remains implemented).
 ### Changed
-* Further clean up internal APIs.
+* Further cleaned up internal APIs.
+* Improved module documentation.
 ### Fixed
 * Ensure an encoding is always specified when creating a text `WebResource`.
 * Removed duplicated code in [test/extracted_archive_display.py](test/extracted_archive_display.py).
