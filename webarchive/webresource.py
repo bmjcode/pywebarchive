@@ -60,44 +60,6 @@ class WebResource(object):
         self._text_encoding = text_encoding
         self._frame_name = frame_name
 
-    @classmethod
-    def _create_from_plist_data(cls, plist_data, archive):
-        """Create a WebResource object using parsed data from plistlib."""
-
-        # Note the argument order was originally (plist_data, archive).
-        # I find this order more natural, but changed it for consistency
-        # with WebArchive's method of the same name, where the parent
-        # argument is optional and thus must come later. My reason for
-        # doing so is to reduce confusion if either method is made public
-        # in a future release.
-
-        # Property names:
-        #   - WebResourceData
-        #   - WebResourceMIMEType
-        #   - WebResourceTextEncodingName
-        #   - WebResourceURL
-        #   - WebResourceFrameName
-
-        data = plist_data["WebResourceData"]
-        mime_type = plist_data["WebResourceMIMEType"]
-        url = plist_data["WebResourceURL"]
-
-        res = cls(archive, data, mime_type, url)
-
-        # Text encoding (not present for all WebResources)
-        if "WebResourceTextEncodingName" in plist_data:
-            res._text_encoding = plist_data["WebResourceTextEncodingName"]
-            res._text_encoding = res._text_encoding.lower()
-        elif res._mime_type.startswith("text/"):
-            # Fall back on UTF-8 for text resources
-            res._text_encoding = "utf-8"
-
-        # Frame name (not present for all WebResources)
-        if "WebResourceFrameName" in plist_data:
-            res._frame_name = plist_data["WebResourceFrameName"]
-
-        return res
-
     def __bytes__(self):
         """Return this resource's data as bytes.
 
@@ -149,6 +111,44 @@ class WebResource(object):
 
         url_data = str(b64encode(data), encoding="ascii")
         return "data:{0};base64,{1}".format(self.mime_type, url_data)
+
+    @classmethod
+    def _create_from_plist_data(cls, plist_data, archive):
+        """Create a WebResource object using parsed data from plistlib."""
+
+        # Note the argument order was originally (plist_data, archive).
+        # I find this order more natural, but changed it for consistency
+        # with WebArchive's method of the same name, where the parent
+        # argument is optional and thus must come later. My reason for
+        # doing so is to reduce confusion if either method is made public
+        # in a future release.
+
+        # Property names:
+        #   - WebResourceData
+        #   - WebResourceMIMEType
+        #   - WebResourceTextEncodingName
+        #   - WebResourceURL
+        #   - WebResourceFrameName
+
+        data = plist_data["WebResourceData"]
+        mime_type = plist_data["WebResourceMIMEType"]
+        url = plist_data["WebResourceURL"]
+
+        res = cls(archive, data, mime_type, url)
+
+        # Text encoding (not present for all WebResources)
+        if "WebResourceTextEncodingName" in plist_data:
+            res._text_encoding = plist_data["WebResourceTextEncodingName"]
+            res._text_encoding = res._text_encoding.lower()
+        elif res._mime_type.startswith("text/"):
+            # Fall back on UTF-8 for text resources
+            res._text_encoding = "utf-8"
+
+        # Frame name (not present for all WebResources)
+        if "WebResourceFrameName" in plist_data:
+            res._frame_name = plist_data["WebResourceFrameName"]
+
+        return res
 
     @property
     def archive(self):

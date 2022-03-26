@@ -60,40 +60,6 @@ class WebArchive(object):
 
         return False  # process any raised exception normally
 
-    @classmethod
-    def _create_from_plist_data(cls, archive_data, parent=None):
-        """Create a WebArchive object using parsed data from plistlib."""
-
-        res = cls(parent)
-        res._populate_from_plist_data(archive_data)
-
-        return res
-
-    @classmethod
-    def _open(cls, path, mode="r"):
-        """Open the specified webarchive file."""
-
-        # Note this is the actual function exported as webarchive.open().
-        # It uses a private name here to hide its real location from pydoc,
-        # since that is an implementation detail that could change, but be
-        # aware that any changes made here will be very public indeed.
-
-        archive = cls()
-
-        if isinstance(mode, str):
-            if mode == "r":
-                # Read this webarchive
-                with io.open(path, "rb") as stream:
-                    archive._populate_from_stream(stream)
-            else:
-                raise WebArchiveException(
-                    "only mode 'r' (reading) is currently supported"
-                )
-        else:
-            raise WebArchiveError("mode must be a str")
-
-        return archive
-
     def close(self):
         """Close this webarchive."""
 
@@ -511,6 +477,40 @@ class WebArchive(object):
 
         else:
             raise WebArchiveError("invalid stream type")
+
+    @classmethod
+    def _create_from_plist_data(cls, archive_data, parent=None):
+        """Create a WebArchive object using parsed data from plistlib."""
+
+        res = cls(parent)
+        res._populate_from_plist_data(archive_data)
+
+        return res
+
+    @classmethod
+    def _open(cls, path, mode="r"):
+        """Open the specified webarchive file."""
+
+        # Note this is the actual function exported as webarchive.open().
+        # It uses a private name here to hide its real location from pydoc,
+        # since that is an implementation detail that could change, but be
+        # aware that any changes made here will be very public indeed.
+
+        archive = cls()
+
+        if isinstance(mode, str):
+            if mode == "r":
+                # Read this webarchive
+                with io.open(path, "rb") as stream:
+                    archive._populate_from_stream(stream)
+            else:
+                raise WebArchiveException(
+                    "only mode 'r' (reading) is currently supported"
+                )
+        else:
+            raise WebArchiveError("mode must be a str")
+
+        return archive
 
     @property
     def main_resource(self):
