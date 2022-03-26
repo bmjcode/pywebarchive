@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Further clean up internal APIs.
 ### Fixed
 * Ensure an encoding is always specified when creating a text `WebResource`.
+* Removed duplicated code in [test/extracted_archive_display.py](test/extracted_archive_display.py).
 
 ## [0.3.3] - 2021-11-05
 ### Added
