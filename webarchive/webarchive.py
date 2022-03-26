@@ -24,19 +24,14 @@ class WebArchive(object):
     change in a future release.
     """
 
-    # WebMainResource
-    # WebSubresources
-    # WebSubframeArchives
-
-    __slots__ = ["_main_resource", "_subresources", "_subframe_archives",
+    __slots__ = ["_parent",
+                 "_main_resource", "_subresources", "_subframe_archives",
                  "_local_paths"]
 
-    def __init__(self, path_or_stream, *, subframe=False):
-        """Return a new WebArchive object.
+    def __init__(self, path_or_stream=None, parent=None):
+        """Return a new WebArchive object."""
 
-        The subframe argument is reserved for internal use.
-        """
-
+        self._parent = parent
         self._main_resource = None
         self._subresources = []
         self._subframe_archives = []
@@ -50,40 +45,33 @@ class WebArchive(object):
         # can be extracted independently of its parent archive.
         self._local_paths = {}
 
-        # Read data from the archive
-        if subframe and isinstance(path_or_stream, dict):
-            # This is a subframe, and the constructor argument is the
-            # processed plist data from the parent archive
-            archive = path_or_stream
+        if path_or_stream:
+            # Read data from the archive
+            if isinstance(path_or_stream, io.IOBase):
+                # The constructor argument is a stream
+                archive_data = plistlib.load(path_or_stream)
 
-        elif isinstance(path_or_stream, io.IOBase):
-            # The constructor argument is a stream
-            archive = plistlib.load(path_or_stream)
+            elif (isinstance(path_or_stream, str)
+                  and os.path.isfile(path_or_stream)):
+                # Assume the constructor argument is a file path
+                with io.open(path_or_stream, "rb") as fp:
+                    archive_data = plistlib.load(fp)
 
-        else:
-            # Assume the constructor argument is a file path
-            with io.open(path_or_stream, "rb") as fp:
-                archive = plistlib.load(fp)
+            else:
+                raise WebArchiveError(
+                    "path_or_stream must be a valid file path or stream"
+                )
 
-        # Process the main resource
-        self._main_resource = WebResource._create_from_plist_data(
-            self, archive["WebMainResource"]
-        )
+            self._populate_from_plist_data(archive_data)
 
-        # Process subresources
-        if "WebSubresources" in archive:
-            for plist_data in archive["WebSubresources"]:
-                res = WebResource._create_from_plist_data(self, plist_data)
-                self._subresources.append(res)
+    @classmethod
+    def _create_from_plist_data(cls, archive_data, parent=None):
+        """Create a WebArchive object using parsed data from plistlib."""
 
-        # Process subframe archives
-        if "WebSubframeArchives" in archive:
-            for plist_data in archive["WebSubframeArchives"]:
-                subframe_archive = WebArchive(plist_data, subframe=True)
-                self._subframe_archives.append(subframe_archive)
+        res = cls(parent=parent)
+        res._populate_from_plist_data(archive_data)
 
-        # Make local paths for subresources
-        self._make_local_paths()
+        return res
 
     def extract(self, output_path, single_file=False,
                 *, before_cb=None, after_cb=None, canceled_cb=None):
@@ -458,6 +446,34 @@ class WebArchive(object):
             if not res.url in self._local_paths:
                 self._local_paths[res.url] = self._make_local_path(res)
 
+    def _populate_from_plist_data(self, archive_data):
+        """Populate a WebArchive using parsed data from plistlib."""
+
+        # Property names:
+        # - WebMainResource
+        # - WebSubresources
+        # - WebSubframeArchives
+
+        # Process the main resource
+        self._main_resource = WebResource._create_from_plist_data(
+            archive_data["WebMainResource"], self
+        )
+
+        # Process subresources
+        if "WebSubresources" in archive_data:
+            for res_data in archive_data["WebSubresources"]:
+                res = WebResource._create_from_plist_data(res_data, self)
+                self._subresources.append(res)
+
+        # Process subframe archives
+        if "WebSubframeArchives" in archive_data:
+            for sa_data in archive_data["WebSubframeArchives"]:
+                sa = WebArchive._create_from_plist_data(sa_data, self)
+                self._subframe_archives.append(sa)
+
+        # Make local paths for subresources
+        self._make_local_paths()
+
     @property
     def main_resource(self):
         """This archive's main resource (a WebResource object)."""
@@ -477,8 +493,8 @@ class WebArchive(object):
         return self._subframe_archives
 
 
-# Record extensions for MIME types sometimes encountered in data URLs
-# that the mimetypes module may not already recognize
+# These are common file extensions for web content
+# that the mimetypes module may not already know
 mimetypes.add_type("application/font-woff", ".woff")
 mimetypes.add_type("application/x-font-woff", ".woff")
 mimetypes.add_type("application/x-javascript", ".js")

@@ -61,8 +61,15 @@ class WebResource(object):
         self._frame_name = frame_name
 
     @classmethod
-    def _create_from_plist_data(cls, archive, plist_data):
+    def _create_from_plist_data(cls, plist_data, archive):
         """Create a WebResource object using parsed data from plistlib."""
+
+        # Note the argument order was originally (plist_data, archive).
+        # I find this order more natural, but changed it for consistency
+        # with WebArchive's method of the same name, where the parent
+        # argument is optional and thus must come later. My reason for
+        # doing so is to reduce confusion if either method is made public
+        # in a future release.
 
         # Property names:
         #   - WebResourceData
