@@ -481,6 +481,15 @@ class WebArchive(object):
         return self._main_resource
 
     @property
+    def parent(self):
+        """This archive's parent WebArchive.
+
+        Note this is only applicable for subframe archives.
+        """
+
+        return self._parent
+
+    @property
     def subresources(self):
         """This archive's subresources (a list of WebResource objects)."""
 

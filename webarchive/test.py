@@ -197,6 +197,20 @@ class WebArchiveTest(unittest.TestCase):
 
             self.assertEqual(self.archive.to_html(), content)
 
+    def test_webarchive_parent(self):
+        """Test the WebArchive.parent property."""
+
+        # The top-level archive does not have a parent
+        self.assertIsNone(self.archive.parent)
+
+        # Create an empty subframe archive
+        subframe_archive = WebArchive(parent=self.archive)
+
+        # Assert that its parent property is set to the right value
+        self.assertIsNotNone(subframe_archive._parent)
+        self.assertEqual(subframe_archive.parent, subframe_archive._parent)
+        self.assertEqual(subframe_archive.parent, self.archive)
+
 
 class RewriterTest(WebArchiveTest):
     """Base class for HTML and CSS rewriter tests."""
