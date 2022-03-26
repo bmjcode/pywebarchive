@@ -41,21 +41,13 @@ class WebArchive(object):
         self._subresources = []
         self._subframe_archives = []
 
-        # Basenames for extracted subresources, indexed by URL
+        # Basenames for extracted subresources, indexed by (absolute) URL
         #
-        # Implementation note: Starting in version 0.2.2, each subframe
-        # archive has its own local paths dictionary so it can be extracted
-        # independently of its parent archive. (Earlier releases did not
-        # generate this for subframes for performance reasons, but it was
-        # found not to incur a significant penalty in practice.)
+        # This also contains entries for the main resources, but not
+        # subresources, of any subframe archives.
         #
-        # The parent archive also generates its own local paths for its
-        # subframe archives' resources. When extracting the parent archive,
-        # its subframe archives' resources are processed as subresources.
-        #
-        # This slight inefficiency is a side effect of how the extraction
-        # code evolved, and may be cleaned up in a future release. For now,
-        # however, it will remain on the "if-it-ain't-broke" principle.
+        # Each subframe archive has its own local paths dictionary so it
+        # can be extracted independently of its parent archive.
         self._local_paths = {}
 
         # Read data from the archive
@@ -84,20 +76,14 @@ class WebArchive(object):
                 res = WebResource._create_from_plist_data(self, plist_data)
                 self._subresources.append(res)
 
-                # Make local paths for extracting each subresource
-                self._make_local_path(res)
-
-        # Process WebSubframeArchives
+        # Process subframe archives
         if "WebSubframeArchives" in archive:
             for plist_data in archive["WebSubframeArchives"]:
                 subframe_archive = WebArchive(plist_data, subframe=True)
                 self._subframe_archives.append(subframe_archive)
 
-                # Make local paths for extracting the subframe's main
-                # resource and subresources
-                self._make_local_path(subframe_archive.main_resource)
-                for res in subframe_archive._subresources:
-                    self._make_local_path(res)
+        # Make local paths for subresources
+        self._make_local_paths()
 
     def extract(self, output_path, single_file=False,
                 *, before_cb=None, after_cb=None, canceled_cb=None):
@@ -164,6 +150,11 @@ class WebArchive(object):
             AFTER(self._main_resource, output_path)
 
         else:
+            # Make sure all subresources have local paths
+            # (this is redundant for read-only archives, but could be
+            # useful if pywebarchive ever implements write support)
+            self._make_local_paths()
+
             # Basename of the directory containing extracted subresources
             subresource_dir_base = "{0}_files".format(base)
 
@@ -389,7 +380,7 @@ class WebArchive(object):
             return abs_url
 
     def _make_local_path(self, res):
-        """Generate a local path for the specified WebResource."""
+        """Returns a local path for the specified WebResource."""
 
         # Basename for the extracted resource
         base = ""
@@ -449,6 +440,23 @@ class WebArchive(object):
 
         # Save this resource's local path
         self._local_paths[res.url] = local_path
+        return local_path
+
+    def _make_local_paths(self):
+        """Make local paths for all of this archive's resources."""
+
+        resources = [self._main_resource]
+        for subresource in self._subresources:
+            resources.append(subresource)
+        # The main resource of a subframe archive is effectively also
+        # a subresource, so we include entries for those here
+        for subframe_archive in self._subframe_archives:
+            resources.append(subframe_archive._main_resource)
+
+        # Generate local paths for any URLs we don't have them for
+        for res in resources:
+            if not res.url in self._local_paths:
+                self._local_paths[res.url] = self._make_local_path(res)
 
     @property
     def main_resource(self):
