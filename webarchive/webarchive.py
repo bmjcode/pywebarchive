@@ -73,8 +73,9 @@ class WebArchive(object):
         """Extract this webarchive.
 
         Extraction converts a webarchive to a standard HTML document.
-        The resulting document should display and function identically
-        to the original, though it will not necessarily be byte-identical.
+        The resulting document should look and behave identically to the
+        original webarchive file as displayed by Safari (apart from the
+        usual rendering differences if you are using a different browser).
 
         External media such as images, scripts, and style sheets are
         handled as follows:
@@ -83,7 +84,7 @@ class WebArchive(object):
             this archive's subresources will be saved as individual
             files. References to those resources will be rewritten
             to use the local copies. This is how the "Save As" command
-            in most non-Safari browsers, like Mozilla Firefox, works.
+            in other browsers like Mozilla Firefox usually works.
 
           * If single_file is True ("single-file mode"), this archive's
             subresources will be embedded inline using data URIs. As the
@@ -94,21 +95,22 @@ class WebArchive(object):
           * References to media not stored as subresources will be
             replaced with absolute URLs.
 
-        You can specify the below callback functions as keyword arguments
-        to monitor or cancel the extraction process:
+        To allow monitoring or canceling an extraction in process, you
+        can specify callback functions for the following keyword arguments:
 
           before_cb(res, path)
-            Called before extracting a WebResource.
+            Called just before extracting a WebResource. No return value.
             - res is the WebResource object to be extracted.
             - path is the absolute path where it will be extracted.
 
           after_cb(res, path)
-            Called after extracting a WebResource.
+            Called just after extracting a WebResource. No return value.
             - res is the WebResource object that was extracted.
             - path is the absolute path where it was extracted.
 
           canceled_cb()
-            Returns True if extraction was canceled, False otherwise.
+            Called periodically to check if extraction was canceled
+            by the user. Should return True to cancel, False otherwise.
         """
 
         if canceled_cb and canceled_cb():

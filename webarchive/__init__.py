@@ -9,9 +9,10 @@ Media in the archive, called "resources", are indexed by URL. A webarchive
 may include resources of any type, including nested webarchives for HTML
 frames. Archived content is byte-for-byte identical to the original source.
 
-pywebarchive's primary function is to "extract" webarchives by converting
-them to standard HTML documents, so their content can be viewed in non-
-Apple browsers. However, it can also be used to examine archives directly.
+pywebarchive's primary focus is on "extracting" webarchives -- converting
+them to standard HTML pages that can be opened in any browser. However, it
+also includes an extensive API for examining archives and their resources
+directly; see the WebArchive and WebResource class docs for details.
 
 Example usage:
 
