@@ -15,9 +15,10 @@ Apple browsers. However, it can also be used to examine archives directly.
 
 Example usage:
 
-    import webarchive
-    with webarchive.open("example.webarchive") as archive:
-        archive.extract("example.html")
+>>> import webarchive
+>>> with webarchive.open("example.webarchive") as archive:
+...     # Do something with this archive
+...     archive.extract("example.html")
 """
 
 from .webarchive import WebArchive
