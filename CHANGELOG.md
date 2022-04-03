@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
-* More complete documentation for the `WebArchive` class.
+* More complete documentation for the `WebArchive` and `WebResource` classes.
 ### Fixed
 * Raise a `WebArchiveError` when attempting to extract a webarchive with no main resource.
 ### Changed

@@ -12,17 +12,28 @@ __all__ = ["WebResource"]
 class WebResource(object):
     """An individual resource within a webarchive.
 
-    A WebResource stores a particular media file's content, as well as
-    metadata such as its original URL, MIME type, and text encoding (if
-    applicable). Check the list of data descriptors below for details.
+    A webresource consists of the following elements:
 
-    You can access a WebResource's content using its "data" property, or
-    by converting it to bytes. If the MIME type indicates it is a text
-    resource, you can also use str() to convert it to a string using its
-    specified text encoding. All of these return its content verbatim.
+      * The resource's data (required). This is a bytes field storing
+        its verbatim content as received from the original web server.
 
-    WebResource objects are created and managed by their parent WebArchive;
-    applications should not attempt to create them directly.
+      * The resource's MIME type (required).
+
+      * The absolute URL of this resource's source (required).
+
+      * The resource's text encoding (optional). This is only present
+        if the resource has a plain-text MIME type.
+
+      * The resource's frame name (optional). The purpose of this is
+        currently unknown.
+
+    You can examine these resource using this class's properties.
+    To retrieve a resource's data, you can also convert it to bytes,
+    or if it has a plain-text MIME type, to str (the latter will
+    automatically use the resource's specified text encoding).
+
+    Note: WebResource objects are created and managed by a parent
+    WebArchive; applications should not attempt to create them directly.
     """
 
     __slots__ = ["_archive", "_data", "_mime_type", "_url",
@@ -30,7 +41,12 @@ class WebResource(object):
 
     def __init__(self, archive, data, mime_type, url,
                  text_encoding=None, frame_name=None):
-        """Return a new WebResource object."""
+        """Return a new WebResource object.
+
+        Note WebResources are created and managed by a parent WebArchive.
+        Applications should not attempt to instantiate this class directly,
+        since the constructor arguments may change in a future release.
+        """
 
         # The parent WebArchive
         self._archive = archive
@@ -61,22 +77,18 @@ class WebResource(object):
         self._frame_name = frame_name
 
     def __bytes__(self):
-        """Return this resource's data as bytes.
-
-        The data is returned verbatim as it is stored in the archive.
-        """
+        """Return this resource's data as bytes."""
 
         return bytes(self._data)
 
     def __str__(self):
         """Return this resource's data as a printable string.
 
-        This is only available for text resources (i.e., those whose MIME
-        type starts with "text/"), and will raise a TypeError for other
-        resources that cannot be reliably converted to strings.
+        This is only available if the resource's MIME type indicates it
+        contains plain text; otherwise, it will raise a TypeError.
 
-        The content is returned verbatim as it is stored in the archive,
-        in the encoding specified by this resource's text_encoding property.
+        The returned string will use the encoding specified by this
+        resource's text_encoding property.
         """
 
         if util.is_text_mime_type(self._mime_type):
@@ -152,13 +164,23 @@ class WebResource(object):
 
     @property
     def archive(self):
-        """This resource's parent WebArchive."""
+        """This resource's parent WebArchive.
+
+        Note this property is not part of the webarchive format itself,
+        but rather is provided by pywebarchive as a convenience.
+        """
 
         return self._archive
 
     @property
     def data(self):
-        """This resource's data."""
+        """This resource's data.
+
+        This always returns the raw binary data as a Python bytes object;
+        converting this object to bytes will have the same effect. If this
+        resource contains plain-text data, an easier way to access it is to
+        convert this object to a str.
+        """
 
         return self._data
 
@@ -170,18 +192,27 @@ class WebResource(object):
 
     @property
     def url(self):
-        """The original URL of this resource."""
+        """The absolute URL of this resource's source."""
 
         return self._url
 
     @property
     def text_encoding(self):
-        """The text encoding of this resource's data."""
+        """The text encoding of this resource's data.
+
+        This is only present if this resource has a plain-text MIME type.
+        If no text encoding is specified for such a resource, pywebarchive
+        currently falls back on UTF-8; this behavior may change in a future
+        release if we determine Apple's own software handles it differently.
+        """
 
         return self._text_encoding
 
     @property
     def frame_name(self):
-        """This resource's frame name."""
+        """This resource's frame name.
+
+        The purpose of this property is currently unknown.
+        """
 
         return self._frame_name
