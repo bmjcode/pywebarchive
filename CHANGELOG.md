@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+### Changed
+* Use a `with` clause for proper cleanup in [test/extracted\_archive\_display.py](test/extracted_archive_display.py).
+
 ## [0.4.1] - 2022-03-26
 ### Fixed
 * Call `close()` in `WebArchive.__exit__()`.
@@ -19,7 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Improved module documentation.
 ### Fixed
 * Ensure an encoding is always specified when creating a text `WebResource`.
-* Removed duplicated code in [test/extracted_archive_display.py](test/extracted_archive_display.py).
+* Removed duplicated code in [test/extracted\_archive\_display.py](test/extracted_archive_display.py).
 
 ## [0.3.3] - 2021-11-05
 ### Added

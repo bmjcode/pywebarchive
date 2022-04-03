@@ -39,11 +39,10 @@ def run_test():
         assert (not os.path.exists(output_path))
 
         # Load our sample archive
-        archive = webarchive.open(SAMPLE_ARCHIVE_PATH)
-
-        # Extract the archive, and assert that it succeeded
-        archive.extract(output_path)
-        assert os.path.isfile(output_path)
+        with webarchive.open(SAMPLE_ARCHIVE_PATH) as archive:
+            # Extract the archive, and assert that it succeeded
+            archive.extract(output_path)
+            assert os.path.isfile(output_path)
 
         # Open the converted page
         webbrowser.open(output_path)
