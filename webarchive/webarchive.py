@@ -17,12 +17,28 @@ __all__ = ["WebArchive"]
 
 
 class WebArchive(object):
-    """A webarchive. You can use this class to extract it or to directly
-    examine its individual resources.
+    """An archive storing a webpage's content and embedded external media.
 
-    You should use webarchive.open() to access a webarchive rather than
-    instantiate this class directly, since the constructor arguments may
-    change in a future release.
+    A webarchive consists of the following elements:
+
+      * A main resource (required). This is a WebResource storing the
+        page's HTML content.
+
+      * Subresources (optional). These are WebResources storing external
+        media like images, scripts, and style sheets.
+
+      * Subframe archives (optional). These are nested WebArchives storing
+        other webpages displayed in HTML frames.
+
+    You can examine these resources using this class's main_resource,
+    subresources, and subframe_archives properties, respectively.
+
+    The main operation of interest on webarchives is extraction, which
+    here simply means converting the webarchive to a standard HTML page.
+    See the extract() method's documentation for details.
+
+    Note: You should always use webarchive.open() to access a webarchive
+    file rather than instantiate this class directly.
     """
 
     __slots__ = ["_parent",
@@ -30,7 +46,12 @@ class WebArchive(object):
                  "_local_paths"]
 
     def __init__(self, parent=None):
-        """Return a new WebArchive object."""
+        """Return a new WebArchive object.
+
+        You should always use webarchive.open() to access a WebArchive
+        rather than instantiate this class directly, since the constructor
+        arguments may change in a future release.
+        """
 
         self._parent = parent
         self._main_resource = None
@@ -112,6 +133,9 @@ class WebArchive(object):
           canceled_cb()
             Called periodically to check if extraction was canceled
             by the user. Should return True to cancel, False otherwise.
+
+        If an error occurs during extraction, this will raise a
+        WebArchiveError with a message explaining what went wrong.
         """
 
         # Note: _extract_main_resource() checks that an archive actually
@@ -540,9 +564,11 @@ class WebArchive(object):
 
     @property
     def parent(self):
-        """This archive's parent WebArchive.
+        """This archive's parent WebArchive, if this is a subframe archive.
 
-        Note this is only applicable for subframe archives.
+        This will be set to None if this is the top-level webarchive.
+        (Note this property is not defined in the webarchive format, but
+        rather is provided here as a convenience to programmers.)
         """
 
         return self._parent
