@@ -567,8 +567,8 @@ class WebArchive(object):
         """This archive's parent WebArchive, if this is a subframe archive.
 
         This will be set to None if this is the top-level webarchive.
-        (Note this property is not defined in the webarchive format, but
-        rather is provided here as a convenience to programmers.)
+        Note this property is not part of the webarchive format itself,
+        but rather is provided by pywebarchive as a convenience.
         """
 
         return self._parent
