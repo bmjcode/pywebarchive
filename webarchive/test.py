@@ -12,7 +12,8 @@ import io
 import tempfile
 import unittest
 
-from . import open as open_webarchive, WebArchive, WebResource
+from . import (open as open_webarchive,
+               WebArchive, WebArchiveError, WebResource)
 from .util import HTMLRewriter, is_html_mime_type, process_css_resource
 
 
@@ -217,6 +218,22 @@ class WebArchiveTest(unittest.TestCase):
         self.assertIsNotNone(subframe_archive._parent)
         self.assertEqual(subframe_archive.parent, subframe_archive._parent)
         self.assertEqual(subframe_archive.parent, self.archive)
+
+
+class MalformedArchiveTest(unittest.TestCase):
+    """Test case for safe handling of malformed webarchives."""
+
+    def test_webarchive_without_main_resource(self):
+        """Test safe handling of archives without a main resource."""
+
+        archive = WebArchive()
+        self.assertIsNone(archive.main_resource)
+
+        # Make sure attempting to extract this archive raises an exception
+        with self.assertRaises(WebArchiveError):
+            with tempfile.TemporaryDirectory() as tmp_dir:
+                output_path = os.path.join(tmp_dir, "output.html")
+                archive.extract(output_path)
 
 
 class RewriterTest(WebArchiveTest):

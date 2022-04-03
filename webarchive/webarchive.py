@@ -114,6 +114,9 @@ class WebArchive(object):
             by the user. Should return True to cancel, False otherwise.
         """
 
+        # Note: _extract_main_resource() checks that an archive actually
+        # has a main resource, and raises an exception if it's missing.
+
         if canceled_cb and canceled_cb():
             return
 
@@ -266,6 +269,9 @@ class WebArchive(object):
         """Extract the archive's main resource."""
 
         main_resource = self._main_resource
+        if not main_resource:
+            raise WebArchiveError("archive does not have a main resource")
+
         if is_html_mime_type(main_resource.mime_type):
             with io.open(output_path, "w",
                          encoding=main_resource.text_encoding) as output:
@@ -431,7 +437,14 @@ class WebArchive(object):
     def _make_local_paths(self):
         """Make local paths for all of this archive's resources."""
 
-        resources = [self._main_resource]
+        resources = []
+
+        # This check is to safely handle archives without a main resource.
+        # A well-formed webarchive should always have one, but this isn't
+        # the place to enforce that.
+        if self._main_resource:
+            resources.append(self._main_resource)
+
         for subresource in self._subresources:
             resources.append(subresource)
         # The main resource of a subframe archive is effectively also
