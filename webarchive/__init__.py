@@ -1,25 +1,23 @@
 """Module for reading Apple's webarchive format.
 
-A webarchive stores a complete web page -- including external media like
-images, scripts, and style sheets -- in a single file. It is most notable
-as the default format for the Safari browser's "Save As" command, though
-other Apple software also uses it for various purposes.
+Webarchive is the default format for the "Save As" command in Apple's
+Safari browser. (Other Apple software also uses it internally for various
+purposes.) Its main advantage is that it can save all the content on a
+webpage -- including external media like images, scripts, and style
+sheets -- in a single file. This module allows non-Apple applications
+to read the webarchive format, which is proprietary and not publicly
+documented, and to convert webarchive files to standard HTML pages that
+can be opened in any browser or editor.
 
-Media in the archive, called "resources", are indexed by URL. A webarchive
-may include resources of any type, including nested webarchives for HTML
-frames. Archived content is byte-for-byte identical to the original source.
-
-pywebarchive's primary focus is on "extracting" webarchives -- converting
-them to standard HTML pages that can be opened in any browser. However, it
-also includes an extensive API for examining archives and their resources
-directly; see the WebArchive and WebResource class docs for details.
-
-Example usage:
+To get started, use webarchive.open() on a webarchive file, like so:
 
 >>> import webarchive
 >>> with webarchive.open("example.webarchive") as archive:
-...     # Do something with this archive
+...     # Convert this file to a standard HTML page
 ...     archive.extract("example.html")
+
+For details on the file format and other available operations, see the
+documentation for the WebArchive class.
 """
 
 from .webarchive import WebArchive
