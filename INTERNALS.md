@@ -16,7 +16,7 @@ Maintaining backwards compatibility is important, because other developers have 
 
 ## Coding style
 
-pywebarchive aims to follow the guidelines in [PEP 8](https://peps.python.org/pep-0008/), with a couple clarifications specific to my personal style:
+pywebarchive aims to follow the guidelines in [PEP 8](https://peps.python.org/pep-0008/), with the following additional rules:
 
 * String literals should use double quotes as is standard for American English, except for things like `'"'` that would require awkward escaping. (The PEP allows either single or double quotes.)
 * Line breaks should always come before binary operators, since they're easier to match with their operands that way. (The PEP allows either before or after, but recommends the latter for new code.)
