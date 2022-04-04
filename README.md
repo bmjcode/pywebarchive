@@ -1,7 +1,7 @@
 pywebarchive is software for reading Apple's [webarchive](https://en.wikipedia.org/wiki/Webarchive) format. It consists of two pieces:
 
-* **Webarchive Extractor** converts webarchive files to standard pages you can open in any browser.
-* **The `webarchive` Python module** is the code "under the hood" that makes the Extractor work. It's available for other applications to use, too.
+* Webarchive Extractor converts webarchive files to standard pages you can open in any browser.
+* The `webarchive` Python module is the code "under the hood" that makes the Extractor work. It's available for other applications to use, too.
 
 pywebarchive is open-source software released under the permissive [MIT License](LICENSE). Development takes place [on GitHub](https://github.com/bmjcode/pywebarchive).
 
