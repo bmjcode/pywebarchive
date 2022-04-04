@@ -177,17 +177,12 @@ class HTMLRewriter(HTMLParser):
 
         elif (attr == "src"
               or (tag == "link" and attr == "href")):
-            if tag in ("frame", "iframe"):
-                # Process the src attribute for HTML frames
-                value = self._resource_url(value)
-
-            else:
-                # Process the src attribute for images, scripts, etc.
-                #
-                # Note that we deliberately inline scripts using data URIs
-                # rather than converting them to <script> blocks to avoid
-                # difficulties with scripts containing unescaped HTML tags.
-                value = self._resource_url(value)
+            # It may be tempting to add special handling here to inline
+            # scripts and style sheets using <script> and <style> blocks.
+            # Resist this urge. The naive approach of using data URIs
+            # regardless is much safer, since we don't have to worry about
+            # further complications like unescaped HTML tags in such content.
+            value = self._resource_url(value)
 
         elif attr == "srcset":
             # Process the HTML5 srcset attribute
