@@ -33,9 +33,15 @@ class HTMLRewriter(HTMLParser):
       * Otherwise, we substitute the absolute URL of the original.
     """
 
-    # Implementation note: Using HTMLParser is a safer way to do this
-    # than simple text processing or regular expressions, given the
-    # prevalence of non-standard HTML code.
+    # To rewrite subresource URLs, we actually regenerate all of the page's
+    # HTML code. This may seem like overkill, but it's more reliable than
+    # simple string replacement or regular expressions for two reasons. First,
+    # we don't have to account for HTML entities, because HTMLParser always
+    # gives us text it's processed in unescaped form. Second, it lets us easily
+    # distinguish subresource URLs occurring in attribute values -- which we
+    # want to rewrite to make the page display correctly -- from those
+    # appearing as literal text, which we shouldn't touch since they are
+    # part of the page's content.
 
     __slots__ = ["_res", "_archive", "_output", "_subresource_dir",
                  "_is_xhtml", "_style_buffer", "_in_style_block"]

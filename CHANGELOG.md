@@ -8,8 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 * More complete documentation for the `WebArchive` and `WebResource` classes.
 * Documentation on [pywebarchive's internals](INTERNALS.md).
+* Unit test for subresource URLs occurring as literal text.
 ### Changed
 * Improved the documentation for the `webarchive` module.
+* Expanded and clarified various code comments.
 * Use a `with` clause for proper cleanup in [test/extracted\_archive\_display.py](test/extracted_archive_display.py).
 ### Fixed
 * Raise a `WebArchiveError` when attempting to extract a webarchive with no main resource.

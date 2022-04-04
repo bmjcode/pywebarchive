@@ -483,6 +483,23 @@ class HTMLRewriterTest(RewriterTest):
         self.assertTrue(self.rewriter._is_xhtml)
         self.assertEqual(self.output.getvalue(), out_value)
 
+    def test_subresource_url_literals(self):
+        """Test handling of subresource URLs appearing as literal text."""
+
+        # This is, of course, not the correct way to use alt text,
+        # but will suffice for the purpose of this unit test.
+        template = '<img src="{0}" alt="{1}"><br>{1}'
+        in_value = template.format(self.rel_subresource_url,
+                                   self.rel_subresource_url)
+        # The URL should be rewritten in the src attribute's value,
+        # but not in the alt text or the page's content.
+        out_value = template.format(self.rel_subresource_local_path,
+                                    self.rel_subresource_url)
+        self.assertNotEqual(in_value, out_value)
+
+        self.rewriter.feed(in_value)
+        self.assertEqual(self.output.getvalue(), out_value)
+
 
 class CSSRewriterTest(RewriterTest):
     """Test case for CSS-rewriting rules."""
