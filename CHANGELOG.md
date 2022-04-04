@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Documentation on [pywebarchive's internals](INTERNALS.md).
 * Unit test for subresource URLs occurring as literal text.
 ### Changed
-* Massively overhaul the [README.md](README).
+* Massively overhaul the [README](README.md).
 * Improved the documentation for the `webarchive` module.
 * Expanded and clarified various code comments.
 * Use a `with` clause for proper cleanup in [test/extracted\_archive\_display.py](test/extracted_archive_display.py).
