@@ -19,6 +19,7 @@ Maintaining backwards compatibility is important, because other developers have 
 pywebarchive aims to follow the guidelines in [PEP 8](https://peps.python.org/pep-0008/), with the following additional rules:
 
 * String literals should use double quotes as is standard for American English, except for things like `'"'` that would require awkward escaping. (The PEP allows either single or double quotes.)
+* Strings should be formatted using `str.format()` rather than `printf`-style formatting using the `%` operator. (The PEP does not take a stance on this, but the former has been identified elsewhere as the [preferred method](https://stackoverflow.com/questions/13451989/pythons-many-ways-of-string-formatting-are-the-older-ones-going-to-be-depre) for new code.)
 * Line breaks should always come before binary operators, since they're easier to match with their operands that way. (The PEP allows either before or after, but recommends the latter for new code.)
 
 pywebarchive's source code is well-commented. As a general rule, comments should be provided for anything that's not *immediately* obvious to someone looking at the code for the first time. Since it's especially easy for programmers to assume something is more obvious than it is, it's better to be explicit and err on the side of over-commenting. Comments explaining complex logic should use block formatting and full sentences.
