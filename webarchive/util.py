@@ -110,7 +110,7 @@ class HTMLRewriter(HTMLParser):
 
         self._output.write("<!{0}>".format(decl))
 
-        # This caches pre-XHTML5 documents incorrectly served as standard HTML
+        # This catches XHTML documents incorrectly served with an HTML type
         if "//DTD XHTML " in decl:
             self._is_xhtml = True
 
