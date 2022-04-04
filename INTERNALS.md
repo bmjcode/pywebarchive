@@ -31,9 +31,9 @@ The rules for comments also apply to docstrings. *All* classes, methods, and ind
 
 pywebarchive includes extensive unit tests in [webarchive/test.py](webarchive/test.py). All new code should include tests for both expected behavior (ensuring things do work correctly when they should, such as a property returning the correct value) and any forseeable abnormal circumstances (checking that these are safely handled, such as raising an exception when trying to extract an archive with no resources).
 
-In addition to unit tests, each new version of pywebarchive is manually tested before release with various webarchives saved by Safari from real-world sites. Unit tests can only prove converted pages *should* display correctly in theory; this manual check ensures they actually *do* in practice.
+In addition to unit tests, each new version of pywebarchive is manually tested before release with various webarchives saved by Safari from real-world sites. This manual check ensures that converted pages actually *do* display as well as the unit tests indicate they should.
 
-One weakness of the current test code is that it mainly tests for expected behavior; for example, pywebarchive could use more tests to confirm safe handling of invalidly-formatted webarchive files. Test coverage may also be limited for some components implemented before unit testing became pywebarchive's standard practice.
+One weakness of the current test code is that it mainly tests for expected behavior; pywebarchive could use more tests to confirm safe handling of invalidly-formatted webarchive files, for example. Test coverage may also be limited for some components implemented before unit testing became pywebarchive's standard practice.
 
 
 ## Code organization
