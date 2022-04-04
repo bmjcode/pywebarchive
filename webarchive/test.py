@@ -146,6 +146,14 @@ class WebArchiveTest(unittest.TestCase):
         resource_count = self.archive.resource_count()
         self.assertTrue(isinstance(resource_count, int))
 
+        # All webarchives should have a main resource, but let's double-check
+        self.assertIsNotNone(self.archive.main_resource)
+        for subframe_archive in self.archive.subframe_archives:
+            self.assertIsNotNone(subframe_archive.main_resource)
+            # Make sure none of the subframe archives have their own nested
+            # subframe archives, since it's simpler to write the test that way
+            self.assertEqual(len(subframe_archive.subframe_archives), 0)
+
         # Count the main resource and subresources
         manual_resource_count = 1 + len(self.archive.subresources)
 
@@ -229,7 +237,10 @@ class MalformedArchiveTest(unittest.TestCase):
         archive = WebArchive()
         self.assertIsNone(archive.main_resource)
 
-        # Make sure attempting to extract this archive raises an exception
+        # This archive contains zero resources, and should report as much
+        self.assertEqual(archive.resource_count(), 0)
+
+        # Attempting to extract this archive should raise an exception
         with self.assertRaises(WebArchiveError):
             with tempfile.TemporaryDirectory() as tmp_dir:
                 output_path = os.path.join(tmp_dir, "output.html")

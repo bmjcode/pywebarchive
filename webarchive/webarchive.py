@@ -270,11 +270,15 @@ class WebArchive(object):
         This includes WebResources in subframe archives.
         """
 
-        # Count the main resource and all subresources, both for this
-        # archive and any subframe archives
-        res_count = 1 + len(self._subresources)
+        res_count = 0
+
+        # Just because we should have a main resource doesn't mean we do
+        if self._main_resource:
+            res_count += 1
+
+        res_count += len(self._subresources)
         for subframe_archive in self._subframe_archives:
-            res_count += 1 + len(subframe_archive._subresources)
+            res_count += subframe_archive.resource_count()
 
         return res_count
 

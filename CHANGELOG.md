@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Use a `with` clause for proper cleanup in [test/extracted\_archive\_display.py](test/extracted_archive_display.py).
 ### Fixed
 * Raise a `WebArchiveError` when attempting to extract a webarchive with no main resource.
+* Return the correct value for `WebArchive.resource_count()` if no main resource is present.
 
 ## [0.4.1] - 2022-03-26
 ### Fixed
