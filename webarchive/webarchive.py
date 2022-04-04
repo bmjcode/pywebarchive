@@ -289,8 +289,11 @@ class WebArchive(object):
         as they are when extracting the archive in single-file mode.
         """
 
+        if not self._main_resource:
+            raise WebArchiveError("archive does not have a main resource")
+
         with io.StringIO() as output:
-            process_html_resource(self.main_resource, output, None)
+            process_html_resource(self._main_resource, output, None)
             return output.getvalue()
 
     def _extract_main_resource(self, output_path, subresource_dir):

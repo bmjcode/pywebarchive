@@ -246,6 +246,10 @@ class MalformedArchiveTest(unittest.TestCase):
                 output_path = os.path.join(tmp_dir, "output.html")
                 archive.extract(output_path)
 
+        # Attempting to convert it to HTML should also raise an exception
+        with self.assertRaises(WebArchiveError):
+            archive.to_html()
+
 
 class RewriterTest(WebArchiveTest):
     """Base class for HTML and CSS rewriter tests."""
