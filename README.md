@@ -23,7 +23,7 @@ File | Size | Description
 [pywebarchive-0.4.1.zip](https://github.com/bmjcode/pywebarchive/archive/refs/tags/v0.4.1.zip) | | source code (zip)
 [pywebarchive-0.4.1.tar.gz](https://github.com/bmjcode/pywebarchive/archive/refs/tags/v0.4.1.tar.gz) | | source code (tar.gz)
 
-The Windows vesrion of Webarchive Extractor runs on Windows 7 and higher. It is a portable application -- it doesn't require installation, and won't write to Application Data or the Windows Registry.
+The Windows version of Webarchive Extractor runs on Windows 7 and higher. It is a portable application -- it doesn't require installation, and won't write to Application Data or the Windows Registry.
 
 On macOS and Linux (and Windows with [Python](https://www.python.org/) installed), you can run Webarchive Extractor directly from the source code. Both command-line ([extractor.py](extractor.py)) and graphical ([extractor-gui.py](extractor-gui.py)) versions are included.
 
