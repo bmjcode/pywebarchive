@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Raise a `WebArchiveError` when attempting to extract a webarchive with no main resource.
 * Raise a `WebArchiveError` when attempting to convert a webarchive with no main resource to HTML.
 * Return the correct value for `WebArchive.resource_count()` if no main resource is present.
+### Removed
+* The unnecessary `<!-- Processed by pywebarchive -->` tag previously added to extracted pages.
 
 ## [0.4.1] - 2022-03-26
 ### Fixed

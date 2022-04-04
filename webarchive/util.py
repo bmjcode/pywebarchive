@@ -145,11 +145,6 @@ class HTMLRewriter(HTMLParser):
         else:
             tag_data.append(">")
 
-        # If this is the opening <html> tag, indicate that this file
-        # has been processed by pywebarchive
-        if tag == "html":
-            tag_data.insert(0, "<!-- Processed by pywebarchive -->\n")
-
         return "".join(tag_data)
 
     def _flush_style_buffer(self):
