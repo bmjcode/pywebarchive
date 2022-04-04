@@ -1,35 +1,48 @@
-**pywebarchive** is software for reading Apple's [webarchive](https://en.wikipedia.org/wiki/Webarchive) format.
+pywebarchive is software for reading Apple's [webarchive](https://en.wikipedia.org/wiki/Webarchive) format. It consists of two pieces:
 
-A webarchive stores a complete web page -- including external media like images, scripts, and style sheets -- in a single file. It is most notable as the default format for the [Safari](https://www.apple.com/safari/) browser's "Save As" command, though other Apple software also uses it for various purposes.
+* **Webarchive Extractor** converts webarchive files to standard pages you can open in any browser.
+* **The `webarchive` Python module** is the code "under the hood" that makes the Extractor work. It's available for other applications to use, too.
 
-pywebarchive consists of two main components: Webarchive Extractor, a tool to convert webarchives to standard HTML documents; and the `webarchive` Python module, which is the code "under the hood" that makes it all work.
+pywebarchive is open-source software released under the permissive [MIT License](LICENSE). Development takes place [on GitHub](https://github.com/bmjcode/pywebarchive).
 
 
-## Webarchive Extractor
+## Features
 
-Webarchive Extractor converts webarchives to standard HTML documents. It allows opening webarchives on Windows and Linux/Unix systems, where Safari is not available.
+* Available for Windows, macOS, and Linux
+* Converts webarchive files to plain HTML
+* Handles images, scripts, and style sheets
+* Converted pages display just like they would in Safari (apart from normal cross-browser rendering differences)
 
-### Downloads
+
+## Downloads
+
 File | Size | Description
 ---- | ---- | -----------
-[Webarchive.Extractor.exe](https://github.com/bmjcode/pywebarchive/releases/download/v0.4.1/Webarchive.Extractor.exe) | 7.3 MB | Windows (32-bit, standalone)
-[Webarchive.Extractor.x64.exe](https://github.com/bmjcode/pywebarchive/releases/download/v0.4.1/Webarchive.Extractor.x64.exe) | 8.0 MB | Windows (64-bit, standalone)
+[Webarchive.Extractor.exe](https://github.com/bmjcode/pywebarchive/releases/download/v0.4.1/Webarchive.Extractor.exe) | 7.3 MB | Webarchive Extractor for 32-bit Windows
+[Webarchive.Extractor.x64.exe](https://github.com/bmjcode/pywebarchive/releases/download/v0.4.1/Webarchive.Extractor.x64.exe) | 8.0 MB | Webarchive Extractor for 64-bit Windows
 [pywebarchive-0.4.1.zip](https://github.com/bmjcode/pywebarchive/archive/refs/tags/v0.4.1.zip) | | source code (zip)
 [pywebarchive-0.4.1.tar.gz](https://github.com/bmjcode/pywebarchive/archive/refs/tags/v0.4.1.tar.gz) | | source code (tar.gz)
 
-### Notes
-The Windows version runs on Windows 7 and higher. It is a standalone executable -- no installation required.
+The Windows vesrion of Webarchive Extractor runs on Windows 7 and higher. It is a portable application -- it doesn't require installation, and won't write to Application Data or the Windows Registry.
 
-The pywebarchive source code includes both graphical ([extractor-gui.py](extractor-gui.py)) and command-line ([extractor.py](extractor.py)) versions of Webarchive Extractor. The graphical version requires Tkinter, and can optionally use [userpaths](https://github.com/bmjcode/userpaths). The command-line version should run on any system.
+On macOS and Linux (and Windows with [Python](https://www.python.org/) installed), you can run Webarchive Extractor directly from the source code. Both command-line ([extractor.py](extractor.py)) and graphical ([extractor-gui.py](extractor-gui.py)) versions are included.
 
-### Disclaimer
-The download links above are intended for users looking at pywebarchive's GitHub page (https://github.com/bmjcode/pywebarchive). If you are reading this anywhere else, they may no longer point to the current version of pywebarchive; visit the GitHub page to ensure you are getting the latest and greatest.
-
-If you *are* reading this on GitHub, note the download links here are for the most recent stable release. This may be older than the browseable code at the top of the page, which is the latest version in development.
+If you're a Python developer, you can also [install the `webarchive` module from PyPI](https://pypi.org/project/pywebarchive/) using `pip install pywebarchive`. Note the module you `import` is just `webarchive`, but the package you *install* is `pywebarchive`; this is because an [unrelated project](https://pypi.org/project/webarchive/) already claimed the shorter package name.
 
 
-## The `webarchive` module
+## Requirements
 
-`webarchive` is a Python module for reading the webarchive format. While its primary function is to power Webarchive Extractor, applications can also use it to examine webarchives directly.
+* Python 3
+* Tkinter (only required by [extractor-gui.py](extractor-gui.py))
+* [userpaths](https://pypi.org/project/userpaths/) (optional; used by [extractor-gui.py](extractor-gui.py) if available)
 
-The recommended way to install the `webarchive` module is [through PyPI](https://pypi.org/project/pywebarchive/). For detailed documentation, try `python3 -m pydoc webarchive`.
+
+## More information
+
+Webarchive is the default format for the "Save As" command in Apple's Safari browser. (Other Apple software also uses it internally for various purposes.) Its main advantage is that it can save all the content on a webpage -- including external media like images, scripts, and style sheets -- in a single file. However, the webarchive format is proprietary and not publicly documented, and most other browsers cannot open webarchive files. pywebarchive solves this by converting webarchive files to standard HTML pages, which can be opened in any browser or editor.
+
+The name "pywebarchive" simply reflects that this is webarchive-handling software written in the Python programming language.
+
+pywebarchive follows the [Unix philosophy](https://en.wikipedia.org/wiki/Unix_philosophy) of "do one thing and do it well". With that in mind, pywebarchive deliberately omits all features unrelated to its purpose of converting webarchive files so other browsers can open them. In particular, pywebarchive does *not* support writing webarchive files, and there are no plans to add this in a future release.
+
+[pywebarchive's internals](INTERNALS.md) are fairly well-documented. The code includes extensive comments explaining how it works and why it does various things the way it does. In addition, pywebarchive features dozens of [unit tests](webarchive/test.py) to ensure the code actually does what we think it does, which is further confirmed by manual testing before each release.
