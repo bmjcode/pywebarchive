@@ -105,12 +105,11 @@ class WebResource(object):
         archive will be embedded using nested data URIs.
         """
 
+        # Since URLs are unique by definition, comparing them is the
+        # fastest way to do this check.
         if self.url == self.archive.main_resource.url:
             # This is the archive's main resource.
             # Embed subresources recursively using data URIs.
-            #
-            # N.B. Comparing the URL is the quickest way to check this, but
-            # assumes a well-formed webarchive where the URL field is unique.
             data = bytes(self.archive.to_html(), encoding=self._text_encoding)
 
         elif self.mime_type == "text/css":

@@ -319,9 +319,9 @@ class WebArchive(object):
 
         with io.open(output_path, "w",
                      encoding=res.text_encoding) as output:
-            # Note that URLs in CSS are interpreted relative to the
-            # style sheet's path, which in our case is the same path
-            # where we extract all our other subresources.
+            # URLs in CSS are resolved relative to the style sheet's
+            # location, and in our case all subresources are extracted
+            # to the same directory.
             process_css_resource(res, output, "")
 
     def _extract_subresource(self, res, output_path):
