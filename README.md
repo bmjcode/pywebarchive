@@ -16,12 +16,16 @@ pywebarchive is open-source software released under the permissive [MIT License]
 
 ## Downloads
 
+**Note**: If you're not reading this on GitHub, the links below may be out of date. The latest version of pywebarchive is available at https://github.com/bmjcode/pywebarchive.
+
 File | Size | Description
 ---- | ---- | -----------
 [Webarchive.Extractor.exe](https://github.com/bmjcode/pywebarchive/releases/download/v0.4.1/Webarchive.Extractor.exe) | 7.3 MB | Webarchive Extractor for 32-bit Windows
 [Webarchive.Extractor.x64.exe](https://github.com/bmjcode/pywebarchive/releases/download/v0.4.1/Webarchive.Extractor.x64.exe) | 8.0 MB | Webarchive Extractor for 64-bit Windows
 [pywebarchive-0.4.1.zip](https://github.com/bmjcode/pywebarchive/archive/refs/tags/v0.4.1.zip) | | source code (zip)
 [pywebarchive-0.4.1.tar.gz](https://github.com/bmjcode/pywebarchive/archive/refs/tags/v0.4.1.tar.gz) | | source code (tar.gz)
+
+See the [changelog](https://github.com/bmjcode/pywebarchive/blob/v0.4.1/CHANGELOG.md) for what's new.
 
 The Windows version of Webarchive Extractor runs on Windows 7 and higher. It is a portable application -- it doesn't require installation, and won't write to Application Data or the Windows Registry.
 
