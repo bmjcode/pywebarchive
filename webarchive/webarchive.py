@@ -21,14 +21,14 @@ class WebArchive(object):
 
     A webarchive consists of the following elements:
 
-      * A main resource (required). This is a WebResource storing the
-        page's HTML content.
+      * A main resource (required). This is a WebResource object storing
+        the page's HTML content.
 
-      * Subresources (optional). These are WebResources storing external
-        media like images, scripts, and style sheets.
+      * Subresources (optional). These are WebResource objects storing
+        external media like images, scripts, and style sheets.
 
-      * Subframe archives (optional). These are nested WebArchives storing
-        other webpages displayed in HTML frames.
+      * Subframe archives (optional). These are nested WebArchive objects
+        storing other webpages displayed in HTML frames.
 
     You can examine these resources using this class's main_resource,
     subresources, and subframe_archives properties, respectively.
