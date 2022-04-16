@@ -23,15 +23,21 @@ class WebResource(object):
       * The absolute URL of this resource's source (required).
 
       * The resource's text encoding (optional). This is only present
-        if the resource has a plain-text MIME type.
+        for plain-text resources, as defined below; if the archive did
+        not specify an encoding for this resource, it defaults to UTF-8.
 
       * The resource's frame name (optional). The purpose of this is
         currently unknown.
 
     You can examine these resource using this class's properties.
     To retrieve a resource's data, you can also convert it to bytes,
-    or if it has a plain-text MIME type, to str (the latter will
-    automatically use the resource's specified text encoding).
+    which is equivalent to using its data property.
+
+    A plain-text resource is one whose MIME type is text/plain, or
+    whose data can be losslessly presented as that type (this includes
+    HTML and CSS code). The quickest way to access a plain-text
+    resource's content is to convert it to str; this automatically
+    uses the resource's specified text encoding.
 
     Note: WebResource objects are created and managed by a parent
     WebArchive; applications should not attempt to create them directly.
@@ -85,8 +91,8 @@ class WebResource(object):
     def __str__(self):
         """Return this resource's data as a printable string.
 
-        This is only available if the resource's MIME type indicates it
-        contains plain text; otherwise, it will raise a TypeError.
+        This is only available for plain-text resources; attempting
+        to convert non-text resources to str will raise a TypeError.
 
         The returned string will use the encoding specified by this
         resource's text_encoding property.
@@ -202,10 +208,9 @@ class WebResource(object):
     def text_encoding(self):
         """The text encoding of this resource's data.
 
-        This is only present if this resource has a plain-text MIME type.
-        If no text encoding is specified for such a resource, pywebarchive
-        currently falls back on UTF-8; this behavior may change in a future
-        release if we determine Apple's own software handles it differently.
+        This is only set for plain-text resources. If the parent
+        archive did not specify an encoding for this resource, it
+        defaults to UTF-8.
         """
 
         return self._text_encoding
