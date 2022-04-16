@@ -268,6 +268,13 @@ def process_html_resource(res, output, subresource_dir):
     The modified HTML is written to the specified output stream.
     """
 
+    # This handles output the way it does because HTMLRewriter needs
+    # somewhere to put the rewritten code, and since this function is
+    # only (supposed to be) used internally, we know that when we call
+    # this we're usually extracting a resource to a file. It's more
+    # efficient for our use case to have HTMLRewriter output directly
+    # to the file stream than to collect that data to return in a str.
+
     # Make sure this resource is an appropriate content type
     if not is_html_mime_type(res.mime_type):
         raise TypeError("res must have mime_type == "
