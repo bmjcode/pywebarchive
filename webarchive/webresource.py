@@ -107,12 +107,13 @@ class WebResource(object):
 
         # Since URLs are unique by definition, comparing them is the
         # fastest way to do this check.
-        if self.url == self.archive.main_resource.url:
+        if self._url == self._archive._main_resource._url:
             # This is the archive's main resource.
             # Embed subresources recursively using data URIs.
-            data = bytes(self.archive.to_html(), encoding=self._text_encoding)
+            data = bytes(self._archive.to_html(),
+                         encoding=self._text_encoding)
 
-        elif self.mime_type == "text/css":
+        elif self._mime_type == "text/css":
             # This is a style sheet.
             # Embed external content recursively using data URIs.
             buffer = io.StringIO()
@@ -123,7 +124,7 @@ class WebResource(object):
             data = self._data
 
         url_data = str(b64encode(data), encoding="ascii")
-        return "data:{0};base64,{1}".format(self.mime_type, url_data)
+        return "data:{0};base64,{1}".format(self._mime_type, url_data)
 
     @classmethod
     def _create_from_plist_data(cls, plist_data, archive):
