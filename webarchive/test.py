@@ -531,7 +531,10 @@ class CSSRewriterTest(RewriterTest):
                           data,
                           "text/css",
                           self.dummy_css_url)
-        return process_css_resource(res, "")
+        buffer = io.StringIO()
+
+        process_css_resource(res, buffer, "")
+        return buffer.getvalue()
 
     def test_rewrite_absolute(self):
         """Test absolute URL rewriting."""

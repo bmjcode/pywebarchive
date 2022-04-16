@@ -1,5 +1,6 @@
 """WebResource class implementation."""
 
+import io
 from base64 import b64encode
 
 from . import util
@@ -115,8 +116,9 @@ class WebResource(object):
         elif self.mime_type == "text/css":
             # This is a style sheet.
             # Embed external content recursively using data URIs.
-            content = util.process_css_resource(self)
-            data = bytes(content, encoding=self._text_encoding)
+            buffer = io.StringIO()
+            util.process_css_resource(self, buffer)
+            data = bytes(buffer.getvalue(), encoding=self._text_encoding)
 
         else:
             data = self._data

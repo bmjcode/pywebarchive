@@ -157,8 +157,7 @@ class HTMLRewriter(HTMLParser):
                                           self._res.url,
                                           self._res.text_encoding)
 
-        content = process_css_resource(css_res, self._subresource_dir)
-        self._output.write(content)
+        process_css_resource(css_res, self._output, self._subresource_dir)
         self._style_buffer = ""
 
     def _process_attr_value(self, tag, attr, value):
@@ -223,14 +222,21 @@ def is_text_mime_type(mime_type):
     return (mime_type.startswith("text/") or is_html_mime_type(mime_type))
 
 
-def process_css_resource(res, subresource_dir=None):
+def process_css_resource(res, output, subresource_dir=None):
     """Process a WebResource containing CSS data.
 
     This rewrites url() values to use a local path, data URI, or
     absolute URL as appropriate; see WebArchive._get_local_url().
 
-    Returns a string containing the modified CSS code.
+    The modified CSS is written to the specified output stream.
     """
+
+    # See process_html_resource() below for why this handles output
+    # the way it does. Note that in previous versions of pywebarchive,
+    # this function took different arguments and returned the rewritten
+    # code in a str. In this case the backwards-incompatible change is
+    # justified because this function is strictly for internal use, and
+    # the rewrite makes our code both more efficient and more consistent.
 
     # Make sure this resource is an appropriate content type
     if res.mime_type != "text/css":
@@ -256,7 +262,7 @@ def process_css_resource(res, subresource_dir=None):
             if local_url != match:
                 content = content.replace(match, local_url)
 
-    return content
+    output.write(content)
 
 
 def process_html_resource(res, output, subresource_dir):

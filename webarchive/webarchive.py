@@ -322,8 +322,7 @@ class WebArchive(object):
             # Note that URLs in CSS are interpreted relative to the
             # style sheet's path, which in our case is the same path
             # where we extract all our other subresources.
-            content = process_css_resource(res, "")
-            output.write(content)
+            process_css_resource(res, output, "")
 
     def _extract_subresource(self, res, output_path):
         """Extract the specified subresource from the archive."""
