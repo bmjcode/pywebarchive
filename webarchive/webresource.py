@@ -184,10 +184,11 @@ class WebResource(object):
     def data(self):
         """This resource's data.
 
-        This always returns the raw binary data as a Python bytes object;
-        converting this object to bytes will have the same effect. If this
-        resource contains plain-text data, an easier way to access it is to
-        convert this object to a str.
+        This always returns a bytes object containing raw binary data,
+        and is equivalent to converting this resource to bytes.
+
+        If this is a plain-text resource, an easier way to access its
+        content is to convert this object to a str.
         """
 
         return self._data
