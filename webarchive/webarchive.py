@@ -322,22 +322,16 @@ class WebArchive(object):
             with io.open(output_path, "wb") as output:
                 output.write(bytes(main_resource))
 
-    def _extract_style_sheet(self, res, output_path):
-        """Extract a style sheet subresource from the archive."""
-
-        with io.open(output_path, "w",
-                     encoding=res.text_encoding) as output:
-            # URLs in CSS are resolved relative to the style sheet's
-            # location, and in our case all subresources are extracted
-            # to the same directory.
-            process_css_resource(res, output, "")
-
     def _extract_subresource(self, res, output_path):
         """Extract the specified subresource from the archive."""
 
         if res.mime_type == "text/css":
-            # Process style sheets to rewrite subresource URLs
-            self._extract_style_sheet(res, output_path)
+            with io.open(output_path, "w",
+                         encoding=res.text_encoding) as output:
+                # URLs in CSS are resolved relative to the style sheet's
+                # location, and in our case all subresources are extracted
+                # to the same directory.
+                process_css_resource(res, output, "")
 
         elif is_html_mime_type(res.mime_type):
             # HTML subresources are weird, but possible
