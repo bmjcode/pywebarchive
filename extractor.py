@@ -24,8 +24,12 @@ def main():
     opt_group = parser.add_option_group("Extraction mode")
     opt_group.add_option("-s", "--single-file",
                          action="store_true", dest="single_file",
-                         help="extract archive contents to a single HTML file "
-                              "with embedded resources (experimental)")
+                         help="single file mode; embeds the page's non-HTML "
+                              "content using data URIs. "
+                              "This is usually slower and less efficient "
+                              "than extracting such content to separate "
+                              "files, so only use this if you know what "
+                              "you're doing!")
 
     opt_group = parser.add_option_group("Post-processing actions")
     opt_group.add_option("-o", "--open-page",
@@ -52,8 +56,7 @@ def main():
 
     # Extract the archive
     with webarchive.open(archive_path) as archive:
-        archive.extract(output_path,
-                        single_file=options.single_file)
+        archive.extract(output_path, options.single_file)
 
     if options.open_page and webbrowser:
         # Open the extracted page

@@ -203,7 +203,7 @@ class WebArchiveTest(unittest.TestCase):
             output_path = os.path.join(tmp_dir, "Wikipedia.html")
 
             self.assertFalse(os.path.exists(output_path))
-            self.archive.extract(output_path, single_file=True)
+            self.archive.extract(output_path, True)
             self.assertTrue(os.path.isfile(output_path))
 
             text_encoding = self.archive.main_resource.text_encoding

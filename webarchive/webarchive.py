@@ -90,7 +90,7 @@ class WebArchive(object):
         # compatibility with io.open().
         pass
 
-    def extract(self, output_path, single_file=False,
+    def extract(self, output_path, embed_subresources=False,
                 *, before_cb=None, after_cb=None, canceled_cb=None):
         """Extract this webarchive.
 
@@ -102,20 +102,21 @@ class WebArchive(object):
         External media such as images, scripts, and style sheets are
         handled as follows:
 
-          * If single_file is False ("multi-file mode", the default),
-            this archive's subresources will be saved as individual
-            files. References to those resources will be rewritten
-            to use the local copies. This is how the "Save As" command
-            in other browsers like Mozilla Firefox usually works.
+          * If embed_subresources is False (the default), this archive's
+            subresources will be saved as individual files. References
+            to those resources will be rewritten to use the local copies.
+            This is how the "Save As" command in other browsers like
+            Mozilla Firefox usually works.
 
-          * If single_file is True ("single-file mode"), this archive's
-            subresources will be embedded inline using data URIs. As the
-            name suggests, this allows an entire page and its resources
-            to be saved in a single file. However, it typically requires
-            more disk space and processing time than multi-file extraction.
+          * If embed_subresources is True, subresources will be embedded
+            inline using data URIs. This allows the entire page to be
+            stored in a single file, mimicking the webarchive format's
+            main feature, with full cross-browser support but much lower
+            efficiency. Be aware that this typically requires more disk
+            space and processing time than extracting to separate files.
 
-          * References to media not stored as subresources will be
-            replaced with absolute URLs.
+          * Regardless of the above setting, references to media not
+            stored as subresources will be replaced with absolute URLs.
 
         To allow monitoring or canceling an extraction in process, you
         can specify callback functions for the following keyword arguments:
@@ -141,6 +142,13 @@ class WebArchive(object):
         # Note: _extract_main_resource() checks that an archive actually
         # has a main resource, and raises an exception if it's missing.
 
+        # The embed_subresources argument was previously named single_file.
+        # Since it is intended to be used as a positional rather than a
+        # keyword argument, I think this is an acceptable change to provide
+        # a more descriptive name for this feature. However, this does break
+        # backwards compatibility for any code passing single_file as a
+        # keyword argument against our intentions.
+
         if canceled_cb and canceled_cb():
             return
 
@@ -155,7 +163,7 @@ class WebArchive(object):
         # Strip the extension from the output path
         base, ext = os.path.splitext(os.path.basename(output_path))
 
-        if single_file:
+        if embed_subresources:
             # Extract the main resource, embedding subresources recursively
             # using data URIs
             BEFORE(self._main_resource, output_path)
@@ -211,7 +219,7 @@ class WebArchive(object):
                                              self._local_paths[sf_main.url])
 
                 subframe_archive.extract(sf_local_path,
-                                         single_file,
+                                         embed_subresources,
                                          before_cb=before_cb,
                                          after_cb=after_cb,
                                          canceled_cb=canceled_cb)

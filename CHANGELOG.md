@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Improved the documentation for the `webarchive` module.
 * Expanded and clarified various code comments.
 * Use a `with` clause for proper cleanup in [test/extracted\_archive\_display.py](test/extracted_archive_display.py).
+* Rename `WebArchive.extract()`'s `single_file` argument to the more descriptive `embed_subresources` *(potentially backwards-incompatible change)*.
 ### Fixed
 * Raise a `WebArchiveError` when attempting to extract a webarchive with no main resource.
 * Raise a `WebArchiveError` when attempting to convert a webarchive with no main resource to HTML.
