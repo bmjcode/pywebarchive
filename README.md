@@ -3,12 +3,12 @@ pywebarchive is software for reading Apple's [webarchive](https://en.wikipedia.o
 * Webarchive Extractor converts webarchive files to standard pages you can open in any browser.
 * The `webarchive` Python module is the code "under the hood" that makes the Extractor work. It's available for other applications to use, too.
 
-pywebarchive is open-source software released under the permissive [MIT License](LICENSE). Development takes place [on GitHub](https://github.com/bmjcode/pywebarchive).
+pywebarchive is open-source software released under the permissive [MIT License](LICENSE). Development takes place [on GitHub](https://github.com/bmjcode/pywebarchive). As of October 2022, I am no longer adding new features, but I will still accept issues and pull requests to fix what's already there.
 
 
 ## Features
 
-* Available for Windows, macOS, and Linux
+* Runs on Windows, macOS, and Linux
 * Converts webarchive files to plain HTML
 * Handles images, scripts, and style sheets
 * Converted pages display just like they would in Safari (apart from normal cross-browser rendering differences)
@@ -16,16 +16,16 @@ pywebarchive is open-source software released under the permissive [MIT License]
 
 ## Downloads
 
-The latest version is pywebarchive 0.5.0 (released April 16, 2022). See the [changelog](https://github.com/bmjcode/pywebarchive/blob/v0.5.0/CHANGELOG.md) for what's new.
+The latest version is pywebarchive 0.5.1 (released October 8, 2022). See the [changelog](https://github.com/bmjcode/pywebarchive/blob/v0.5.1/CHANGELOG.md) for what's new.
 
 **Note**: If you're not reading this on GitHub, this section may be out of date. In that case, the latest version of pywebarchive is available at https://github.com/bmjcode/pywebarchive.
 
 File | Size | Description
 ---- | ---- | -----------
-[Webarchive.Extractor.exe](https://github.com/bmjcode/pywebarchive/releases/download/v0.5.0/Webarchive.Extractor.exe) | 7.3 MB | Webarchive Extractor for 32-bit Windows
-[Webarchive.Extractor.x64.exe](https://github.com/bmjcode/pywebarchive/releases/download/v0.5.0/Webarchive.Extractor.x64.exe) | 8.0 MB | Webarchive Extractor for 64-bit Windows
-[pywebarchive-0.5.0.zip](https://github.com/bmjcode/pywebarchive/archive/refs/tags/v0.5.0.zip) | | source code (zip)
-[pywebarchive-0.5.0.tar.gz](https://github.com/bmjcode/pywebarchive/archive/refs/tags/v0.5.0.tar.gz) | | source code (tar.gz)
+[Webarchive.Extractor.exe](https://github.com/bmjcode/pywebarchive/releases/download/v0.5.1/Webarchive.Extractor.exe) | 7.3 MB | Webarchive Extractor for 32-bit Windows
+[Webarchive.Extractor.x64.exe](https://github.com/bmjcode/pywebarchive/releases/download/v0.5.1/Webarchive.Extractor.x64.exe) | 8.0 MB | Webarchive Extractor for 64-bit Windows
+[pywebarchive-0.5.1.zip](https://github.com/bmjcode/pywebarchive/archive/refs/tags/v0.5.1.zip) | | source code (zip)
+[pywebarchive-0.5.1.tar.gz](https://github.com/bmjcode/pywebarchive/archive/refs/tags/v0.5.1.tar.gz) | | source code (tar.gz)
 
 The Windows version of Webarchive Extractor runs on Windows 7 and higher. It is a portable application -- it doesn't require installation, and won't write to Application Data or the Windows Registry.
 

@@ -24,7 +24,7 @@ from .webarchive import WebArchive
 from .webresource import WebResource
 from .exceptions import WebArchiveError
 
-__version__ = "0.5.0"
+__version__ = "0.5.1"
 
 __all__ = [
     "__version__",
