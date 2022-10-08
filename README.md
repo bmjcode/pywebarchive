@@ -50,3 +50,10 @@ The name "pywebarchive" simply reflects that this is webarchive-handling softwar
 pywebarchive follows the [Unix philosophy](https://en.wikipedia.org/wiki/Unix_philosophy) of "do one thing and do it well". With that in mind, pywebarchive deliberately omits all features unrelated to its purpose of converting webarchive files so other browsers can open them. In particular, pywebarchive does *not* support writing webarchive files, and there are no plans to add this in a future release.
 
 [pywebarchive's internals](INTERNALS.md) are fairly well-documented. The code includes extensive comments explaining how it works and why it does various things the way it does. In addition, pywebarchive features dozens of [unit tests](webarchive/test.py) to ensure the code actually does what we think it does, which is further confirmed by manual testing before each release.
+
+
+## References
+
+* Apple Developer Documentation:
+  * [WebArchive class](https://developer.apple.com/documentation/webkit/webarchive)
+  * [WebResource class](https://developer.apple.com/documentation/webkit/webresource)
