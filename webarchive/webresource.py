@@ -26,8 +26,8 @@ class WebResource(object):
         for plain-text resources, as defined below; if the archive did
         not specify an encoding for this resource, it defaults to UTF-8.
 
-      * The resource's frame name (optional). The purpose of this is
-        currently unknown.
+      * The resource's frame name (optional). This is only present if
+        the resource is a webpage displayed in an HTML frame.
 
     You can examine these resource using this class's properties.
     To retrieve a resource's data, you can also convert it to bytes,
@@ -220,7 +220,9 @@ class WebResource(object):
     def frame_name(self):
         """This resource's frame name.
 
-        The purpose of this property is currently unknown.
+        If this resource is a webpage displayed in an HTML frame,
+        this gives the value of the frame tag's name attribute.
+        Otherwise, it is not set.
         """
 
         return self._frame_name
