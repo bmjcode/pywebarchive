@@ -135,9 +135,20 @@ class HTMLRewriter(HTMLParser):
         for attr, value in attrs:
             tag_data.append(" ")
             tag_data.append(attr)
-            tag_data.append('="')
-            tag_data.append(self._process_attr_value(tag, attr, value))
-            tag_data.append('"')
+            if value or value == "":
+                # The weird check is to catch empty string values as opposed
+                # to actual valueless attributes like iframe's "seamless"
+                tag_data.append('="')
+                tag_data.append(self._process_attr_value(tag, attr, value))
+                tag_data.append('"')
+            elif self._is_xhtml:
+                # XHTML requires all attributes to have a value. This implies
+                # we should never reach this block in practice because any
+                # tag that omits a value is invalid, which would prevent the
+                # page from rendering in the first place.
+                tag_data.append('="')
+                tag_data.append(attr)
+                tag_data.append('"')
 
         # Close the tag
         if self._is_xhtml and (is_empty or tag in self._VOID_ELEMENTS):

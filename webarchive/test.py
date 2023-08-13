@@ -500,6 +500,35 @@ class HTMLRewriterTest(RewriterTest):
         self.rewriter.feed(in_value)
         self.assertEqual(self.output.getvalue(), out_value)
 
+    def test_empty_string_value(self):
+        """Test handling of tag attributes with empty string values."""
+
+        template = '<img src="{0}" alt="">'
+        in_value = template.format(self.rel_subresource_url)
+        out_value = template.format(self.rel_subresource_local_path)
+
+        self.rewriter.feed(in_value)
+        self.assertEqual(self.output.getvalue(), out_value)
+
+    def test_valueless_attribute_html(self):
+        """Test handling of valueless HTML attributes."""
+
+        in_value = '<audio controls>'
+        out_value = in_value
+
+        self.rewriter.feed(in_value)
+        self.assertEqual(self.output.getvalue(), out_value)
+
+    def test_valueless_attribute_xhtml(self):
+        """Test handling of valueless XHTML attributes."""
+
+        in_value = '<audio controls>'  # deliberately invalid
+        out_value = '<audio controls="controls">'
+
+        self.rewriter._is_xhtml = True
+        self.rewriter.feed(in_value)
+        self.assertEqual(self.output.getvalue(), out_value)
+
 
 class CSSRewriterTest(RewriterTest):
     """Test case for CSS-rewriting rules."""
