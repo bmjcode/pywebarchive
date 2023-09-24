@@ -16,6 +16,8 @@ URL = "https://github.com/bmjcode/pywebarchive"
 PACKAGES = find_packages(exclude="test")
 CLASSIFIERS = [
     "Development Status :: 5 - Production/Stable",
+    "Development Status :: 6 - Mature",
+    "Development Status :: 7 - Inactive",
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
